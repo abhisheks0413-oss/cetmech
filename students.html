@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Students &amp; Toppers | Mechanical Engineering | College of Engineering Trivandrum</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">CET</div>
+      <span>Mechanical Engineering</span>
+    </div>
+    <nav id="tab-nav">
+      <a id="nav-home-view" href="index.html">Home</a>
+      <a id="nav-about-view" href="about.html">About</a>
+      <a id="nav-academics-view" href="academics.html">Academics</a>
+      <a id="nav-students-view" href="students.html" class="active">Students</a>
+      <a id="nav-notices-view" href="notices.html">Notices</a>
+      <a id="nav-help-view" href="help.html">Help</a>
+    </nav>
+  </header>
+
+  <main>
+      <!-- EVENTS SECTION -->
+      <section style="border-top: 1px solid var(--border); padding-top: 60px; margin-top: 60px;">
+        <div class="section-head">
+          <h2>Upcoming Events &amp; Workshops</h2>
+          <p>Join our technical symposiums, hands-on fabrication projects, and community industrial seminars.</p>
+        </div>
+        <div id="events-list-container" class="grid">
+          <p style="text-align: center; color: var(--text-muted); padding: 20px; grid-column: 1 / -1;">Loading events...</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Image Modal for S6 Toppers -->
+    <div id="toppers-s6-modal" class="image-modal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeImageModal('toppers-s6-modal')">&times;</span>
+        <img id="toppers-s6-image" src="images/toppers/toppers_s6.png" alt="S6 Toppers" style="width: 100%; max-height: 80vh; object-fit: contain;">
+        <p style="text-align: center; color: var(--text-muted); margin-top: 16px; font-size: 14px;">S6 Toppers</p>
+      </div>
+    </div>
+
+    <!-- Image Modal for S2 Toppers -->
+    <div id="toppers-s2-modal" class="image-modal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeImageModal('toppers-s2-modal')">&times;</span>
+        <img id="toppers-s2-image" src="" alt="S2 Toppers" style="width: 100%; max-height: 80vh; object-fit: contain;">
+        <p style="text-align: center; color: var(--text-muted); margin-top: 16px; font-size: 14px;">S2 Toppers - Add image filename (e.g., src="images/toppers/s2_toppers.jpg")</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Event Detail Modal -->
+  <div id="event-detail-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,15,40,0.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);overflow-y:auto;padding:24px 16px;" onclick="if(event.target===this)closeEventModal()">
+    <div style="max-width:680px;margin:40px auto;background:var(--bg-card);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.5);position:relative;" onclick="event.stopPropagation()">
+      <button onclick="closeEventModal()" style="position:absolute;top:14px;right:16px;background:rgba(0,0,0,0.35);border:none;color:#fff;font-size:22px;line-height:1;border-radius:50%;width:36px;height:36px;cursor:pointer;z-index:10;">&times;</button>
+      <div id="event-modal-poster-wrap" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#1a2540;display:none;">
+        <img id="event-modal-poster" src="" alt="" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+      <div style="padding:28px 32px 32px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+          <span id="event-modal-date" style="background:var(--primary);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.05em;"></span>
+          <span id="event-modal-time-venue" style="background:var(--bg-light);color:var(--accent);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid var(--border);"></span>
+        </div>
+        <h2 id="event-modal-title" style="color:var(--primary);font-size:22px;font-weight:700;margin:0 0 14px;line-height:1.3;"></h2>
+        <p id="event-modal-desc" style="color:var(--text-muted);font-size:15px;line-height:1.7;margin:0 0 22px;white-space:pre-line;"></p>
+        <a id="event-modal-reg" href="#" target="_blank" rel="noopener" style="display:none;background:var(--accent);color:#fff;text-decoration:none;padding:11px 28px;border-radius:8px;font-weight:600;font-size:14px;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Register Now</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        Mechanical Engineering — College of Engineering Trivandrum
+      </div>
+      
+      <!-- Centralized Social Connections Matrix Hub -->
+      <div class="footer-social-hub">
+        <span class="social-hub-title">Connect to us</span>
+        <div class="social-tabs-row">
+          
+          <!-- LinkedIn Platform Symbol -->
+          <div class="social-tab-block">
+            <a class="social-interactive-tab" href="https://www.linkedin.com/company/me-association-cet/" target="_blank" rel="noopener" aria-label="LinkedIn Profile">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </a>
+            <span class="social-micro-label">linkedin</span>
+          </div>
+
+          <!-- Instagram Platform Symbol -->
+          <div class="social-tab-block">
+            <a class="social-interactive-tab" href="https://www.instagram.com/me_association.cet?igsh=MWpldDB6czlwd2J2dA==" target="_blank" rel="noopener" aria-label="Instagram Profile">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+            <span class="social-micro-label">instagram</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer-timestamp">
+        Official Student Portal 2026
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>

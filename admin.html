@@ -1,0 +1,1767 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard | Mechanical Engineering Association</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Admin Specific Styling (Avoiding clutter in style.css) */
+    .admin-body {
+      background: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f8fafc;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      width: min(420px, 100%);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .login-title {
+      color: var(--primary);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14.5px;
+      color: var(--text-dark);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    .admin-layout {
+      display: none; /* Toggle via JS after auth */
+      flex: 1;
+      margin-top: 70px; /* Account for navbar */
+    }
+
+    .admin-sidebar {
+      width: 260px;
+      background: #0f2b5c;
+      color: #ffffff;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: fixed;
+      left: 0;
+      top: 70px;
+      bottom: 0;
+      z-index: 90;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    }
+
+    .sidebar-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: #e2e8f0;
+      font-weight: 600;
+      font-size: 14.5px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .sidebar-btn:hover, .sidebar-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .sidebar-btn.active {
+      border-left: 4px solid var(--glow-cyan);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 0 6px 6px 0;
+    }
+
+    .admin-main {
+      flex: 1;
+      margin-left: 260px;
+      padding: 40px;
+      background: #f8fafc;
+      min-height: calc(100vh - 70px);
+    }
+
+    .admin-view {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .admin-view.active-view {
+      display: block;
+    }
+
+    /* Summary Dashboard Cards */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .dashboard-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-info h4 {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .card-info span {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* List Management Tables */
+    .table-container {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .admin-table th, .admin-table td {
+      padding: 14px 20px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .admin-table th {
+      background: var(--bg-light);
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .admin-table tr:hover td {
+      background: var(--bg-light);
+    }
+
+    .btn-edit {
+      color: #3b82f6;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    .btn-delete {
+      color: #ef4444;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Add Forms */
+    .admin-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    /* Form Overlays */
+    .form-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(2px);
+    }
+
+    .form-overlay.active {
+      display: flex;
+    }
+
+    .form-card {
+      background: #ffffff;
+      border-radius: 10px;
+      width: min(650px, 100%);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 32px;
+      position: relative;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .link-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    /* Academics filter controls */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13.5px;
+      outline: none;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13.5px;
+      background: #ffffff;
+      outline: none;
+    }
+
+    @media (max-width: 960px) {
+      .admin-sidebar {
+        width: 60px;
+        padding: 20px 8px;
+      }
+      .sidebar-btn span {
+        display: none;
+      }
+      .sidebar-btn {
+        justify-content: center;
+        padding: 12px 0;
+      }
+      .admin-main {
+        margin-left: 60px;
+        padding: 20px;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- Main Navbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">CET</div>
+      <span>Mechanical Association Admin</span>
+    </div>
+    <nav>
+      <a href="index.html" target="_blank">View Site &rarr;</a>
+    </nav>
+  </header>
+
+  <!-- Login Area -->
+  <div id="login-section" class="login-container">
+    <div class="login-card">
+      <h2 class="login-title">Admin Login</h2>
+      <p class="login-subtitle">Sign in to manage portal settings</p>
+      
+      <div id="login-error" style="display: none; color: #ef4444; background: #fee2e2; border: 1px solid #fca5a5; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; text-align: center;">
+        Invalid credentials
+      </div>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input class="form-input" type="text" id="username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-input" type="password" id="password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="action-btn" style="width: 100%; padding: 12px; margin-top: 8px;">Log In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Admin Layout -->
+  <div id="admin-section" class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <button class="sidebar-btn active" id="btn-view-dashboard" onclick="switchAdminView('dashboard')">
+        <span>📊 Dashboard</span>
+      </button>
+      <button class="sidebar-btn" id="btn-view-notices" onclick="switchAdminView('notices')">
+        <span>📢 Notices</span>
+      </button>
+      <button class="sidebar-btn" id="btn-view-events" onclick="switchAdminView('events')">
+        <span>📅 Events</span>
+      </button>
+      <button class="sidebar-btn" id="btn-view-academics" onclick="switchAdminView('academics')">
+        <span>🎓 Academics Link Config</span>
+      </button>
+      <button class="sidebar-btn" onclick="handleLogout()" style="margin-top: auto; color: #f87171;">
+        <span>🚪 Logout</span>
+      </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+
+      <!-- Tab 1: Dashboard Overview -->
+      <section class="admin-view active-view" id="view-dashboard">
+        <h2 style="color: var(--primary); margin-bottom: 8px;">Overview Dashboard</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Quick metrics of site content configurations</p>
+        
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="card-info">
+              <h4>Total Announcements</h4>
+              <span id="stat-notices">0</span>
+            </div>
+            <div style="font-size: 32px;">📢</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-info">
+              <h4>Active Events</h4>
+              <span id="stat-events">0</span>
+            </div>
+            <div style="font-size: 32px;">📅</div>
+          </div>
+          <div class="dashboard-card">
+            <div class="card-info">
+              <h4>Customized Academic Links</h4>
+              <span id="stat-academics">0</span>
+            </div>
+            <div style="font-size: 32px;">🔗</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 2: Notices Management -->
+      <section class="admin-view" id="view-notices">
+        <div class="admin-header-row">
+          <div>
+            <h2 style="color: var(--primary);">Notice Board Management</h2>
+            <p style="color: var(--text-muted); font-size: 13.5px;">View and edit KTU results templates and announcements</p>
+          </div>
+          <button class="action-btn" onclick="openNoticeForm()">+ Add Notice</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 15%;">Date</th>
+                <th style="width: 50%;">Title</th>
+                <th style="width: 15%;">Type</th>
+                <th style="width: 20%; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="notices-table-body">
+              <!-- JS Injected rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab 3: Events Management -->
+      <section class="admin-view" id="view-events">
+        <div class="admin-header-row">
+          <div>
+            <h2 style="color: var(--primary);">Event &amp; Workshop Management</h2>
+            <p style="color: var(--text-muted); font-size: 13.5px;">View and edit upcoming student assembly events and workshops</p>
+          </div>
+          <button class="action-btn" onclick="openEventForm()">+ Add Event</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 20%;">Date/Time</th>
+                <th style="width: 40%;">Event Title</th>
+                <th style="width: 20%;">Venue</th>
+                <th style="width: 20%; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="events-table-body">
+              <!-- JS Injected rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab 4: Academics Link Config -->
+      <section class="admin-view" id="view-academics">
+        <h2 style="color: var(--primary); margin-bottom: 4px;">Academics Folder Manager</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 13.5px;">Update Google Drive folders redirection targets for all semesters and schemes.</p>
+
+        <!-- Filters bar (no department — Mechanical only) -->
+        <div class="filter-bar">
+          <select id="acad-filter-type" class="filter-select" onchange="filterAcademics()">
+            <option value="">All Types</option>
+            <option value="syllabus">Syllabus</option>
+            <option value="resources">Resources</option>
+          </select>
+
+          <select id="acad-filter-scheme" class="filter-select" onchange="filterAcademics()">
+            <option value="">All Schemes</option>
+            <option value="2024">2024 Scheme</option>
+            <option value="2019">2019 Scheme</option>
+          </select>
+
+          <select id="acad-filter-sem" class="filter-select" onchange="filterAcademics()">
+            <option value="">All Semesters</option>
+            <option value="Semester 1">Semester 1</option>
+            <option value="Semester 2">Semester 2</option>
+            <option value="Semester 3">Semester 3</option>
+            <option value="Semester 4">Semester 4</option>
+            <option value="Semester 5">Semester 5</option>
+            <option value="Semester 6">Semester 6</option>
+            <option value="Semester 7">Semester 7</option>
+            <option value="Semester 8">Semester 8</option>
+          </select>
+        </div>
+
+        <div class="table-container" style="max-height: 60vh; overflow-y: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Scheme</th>
+                <th>Semester</th>
+                <th>Drive Link</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="academics-table-body">
+              <!-- JS Injected rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- NOTICE EDIT MODAL FORM OVERLAY -->
+  <div id="notice-form-overlay" class="form-overlay">
+    <div class="form-card">
+      <span class="modal-close" onclick="closeNoticeForm()">&times;</span>
+      <h3 id="notice-form-title" style="color: var(--primary); margin-bottom: 20px;">Add Announcement Notice</h3>
+      
+      <div id="notice-error" style="display: none; color: #ef4444; background: #fee2e2; border: 1px solid #fca5a5; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 16px;"></div>
+
+      <form id="notice-form" onsubmit="saveNotice(event)">
+        <input type="hidden" id="notice-id">
+        
+        <div class="form-group">
+          <label class="form-label" for="notice-type">Notice Type</label>
+          <select id="notice-type" class="form-input" onchange="toggleNoticeTypeFields()" required>
+            <option value="general">General Notice</option>
+            <option value="result">Result Published Template</option>
+            <option value="series_exam">Series Exam Timetable Template</option>
+            <option value="hackathon">Upcoming Hackathon Template</option>
+            <option value="placement_perspective">Placement Perspective Template</option>
+            <option value="toppers">Semester Toppers Template</option>
+            <option value="call_for_team">Call for Team Template</option>
+            <option value="workshop">Upcoming Workshop Template</option>
+          </select>
+        </div>
+
+        <!-- General Notice Fields -->
+        <div id="general-notice-fields">
+          <div class="form-group">
+            <label class="form-label" for="notice-title">Title</label>
+            <input type="text" id="notice-title" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-date">Date Badge (e.g. "JUN 30" or "INFO")</label>
+            <input type="text" id="notice-date" class="form-input" placeholder="JUN 30">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-desc">Description</label>
+            <textarea id="notice-desc" class="form-input" style="height: 120px; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+
+          <!-- Dynamic Links list -->
+          <div class="form-group">
+            <label class="form-label">Relevant Links</label>
+            <div id="notice-links-list">
+              <!-- JS Injected Link name/url rows -->
+            </div>
+            <button type="button" class="action-link-btn" onclick="addLinkInputRow()" style="margin-top: 8px;">+ Add Link</button>
+          </div>
+        </div>
+
+        <!-- Result Template Fields -->
+        <div id="result-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-semester">Select Semester</label>
+            <select id="notice-semester" class="form-input">
+              <option value="Semester 1">Semester 1</option>
+              <option value="Semester 2">Semester 2</option>
+              <option value="Semester 3">Semester 3</option>
+              <option value="Semester 4">Semester 4</option>
+              <option value="Semester 5">Semester 5</option>
+              <option value="Semester 6">Semester 6</option>
+              <option value="Semester 7">Semester 7</option>
+              <option value="Semester 8">Semester 8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-instagram">Instagram Announcements Link (Optional)</label>
+            <input type="text" id="notice-instagram" class="form-input" placeholder="https://instagram.com/... (optional)">
+          </div>
+        </div>
+
+        <!-- Series Exam Timetable Template Fields -->
+        <div id="series-exam-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-series-semester">Select Semester</label>
+            <select id="notice-series-semester" class="form-input">
+              <option value="Semester 1">Semester 1</option>
+              <option value="Semester 2">Semester 2</option>
+              <option value="Semester 3">Semester 3</option>
+              <option value="Semester 4">Semester 4</option>
+              <option value="Semester 5">Semester 5</option>
+              <option value="Semester 6">Semester 6</option>
+              <option value="Semester 7">Semester 7</option>
+              <option value="Semester 8">Semester 8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-series-drive-link">Drive PDF Link</label>
+            <input type="text" id="notice-series-drive-link" class="form-input" placeholder="https://drive.google.com/file/d/...">
+          </div>
+        </div>
+
+        <!-- Upcoming Hackathon Template Fields -->
+        <div id="hackathon-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-hackathon-title">Title</label>
+            <input type="text" id="notice-hackathon-title" class="form-input" value="Hackathon">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-hackathon-date">Date</label>
+            <input type="text" id="notice-hackathon-date" class="form-input" placeholder="e.g. 2026-07-20">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-hackathon-location">Location / Venue</label>
+            <input type="text" id="notice-hackathon-location" class="form-input" placeholder="e.g. Mechanical Seminar Hall">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-hackathon-desc">Description (Optional)</label>
+            <textarea id="notice-hackathon-desc" class="form-input" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+        </div>
+
+        <!-- Placement Perspective Template Fields -->
+        <div id="placement-perspective-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-placement-title">Title</label>
+            <input type="text" id="notice-placement-title" class="form-input" value="Placement Perspective">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-placement-date">Date</label>
+            <input type="text" id="notice-placement-date" class="form-input" placeholder="e.g. 2026-07-25">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-placement-location">Location / Venue</label>
+            <input type="text" id="notice-placement-location" class="form-input" placeholder="e.g. Mechanical Seminar Hall">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-placement-desc">Description (Optional)</label>
+            <textarea id="notice-placement-desc" class="form-input" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+        </div>
+
+        <!-- Semester Toppers Template Fields -->
+        <div id="toppers-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-toppers-semester">Select Semester</label>
+            <select id="notice-toppers-semester" class="form-input">
+              <option value="Semester 1">Semester 1</option>
+              <option value="Semester 2">Semester 2</option>
+              <option value="Semester 3">Semester 3</option>
+              <option value="Semester 4">Semester 4</option>
+              <option value="Semester 5">Semester 5</option>
+              <option value="Semester 6">Semester 6</option>
+              <option value="Semester 7">Semester 7</option>
+              <option value="Semester 8">Semester 8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-toppers-list">Toppers List</label>
+            <textarea id="notice-toppers-list" class="form-input" placeholder="Name 1 (GPA: 9.8) - Rank 1&#10;Name 2 (GPA: 9.6) - Rank 2" style="height: 100px; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-toppers-instagram">Instagram Announcements Link (Optional)</label>
+            <input type="text" id="notice-toppers-instagram" class="form-input" placeholder="https://instagram.com/...">
+          </div>
+        </div>
+
+        <!-- Call for Team Template Fields -->
+        <div id="call-for-team-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-call-team-dropdown">Choose Title Option</label>
+            <select id="notice-call-team-dropdown" class="form-input" onchange="toggleCustomCallTitle()">
+              <option value="Call for Magazine Articles">Call for Magazine Articles</option>
+              <option value="Call for Performances">Call for Performances</option>
+              <option value="Call for Volunteers">Call for Volunteers</option>
+              <option value="custom">Custom Title...</option>
+            </select>
+          </div>
+          <div class="form-group" id="notice-call-team-custom-group" style="display: none;">
+            <label class="form-label" for="notice-call-team-custom">Custom Title</label>
+            <input type="text" id="notice-call-team-custom" class="form-input" placeholder="e.g. Call for Editors">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-call-team-desc">Description</label>
+            <textarea id="notice-call-team-desc" class="form-input" style="height: 120px; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-call-team-date">Deadline / Date <span style="font-weight:400;color:var(--text-muted);">(Optional)</span></label>
+            <input type="text" id="notice-call-team-date" class="form-input" placeholder="e.g. July 20, 2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-call-team-link">Submission / Info Link <span style="font-weight:400;color:var(--text-muted);">(Optional)</span></label>
+            <input type="text" id="notice-call-team-link" class="form-input" placeholder="https://forms.gle/...">
+          </div>
+        </div>
+
+        <!-- Upcoming Workshop Template Fields -->
+        <div id="workshop-notice-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="notice-workshop-name">Workshop Name</label>
+            <input type="text" id="notice-workshop-name" class="form-input" placeholder="e.g. Fusion 360 & CAD Modelling">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-workshop-mentor">Mentor</label>
+            <input type="text" id="notice-workshop-mentor" class="form-input" placeholder="e.g. Dr. Anver Sadath">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-workshop-mode">Mode</label>
+            <select id="notice-workshop-mode" class="form-input">
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notice-workshop-date">Date</label>
+            <input type="text" id="notice-workshop-date" class="form-input" placeholder="e.g. 2026-07-30">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contacts</label>
+            <div id="notice-workshop-contacts-list">
+              <!-- Dynamically added contacts row -->
+            </div>
+            <button type="button" class="action-link-btn" onclick="addWorkshopContactInputRow()" style="margin-top: 8px;">+ Add Contact</button>
+          </div>
+        </div>
+
+        <!-- Image Upload for Notice -->
+        <div class="form-group">
+          <label class="form-label">Notice Image (Optional)</label>
+          <input type="file" id="notice-image-file" class="form-input" accept="image/*" style="padding: 6px;" onchange="previewNoticeImage(this)">
+          <div id="notice-image-preview" style="margin-top: 10px; display: none;">
+            <img id="notice-img-preview-el" src="" alt="Preview" style="max-height: 140px; border-radius: 6px; border: 1px solid var(--border); display: block;">
+            <button type="button" class="btn-delete" onclick="clearNoticeImage()" style="margin-top: 6px; font-size: 13px;">✕ Remove image</button>
+          </div>
+          <input type="hidden" id="notice-image-data">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 30px;">
+          <button type="submit" class="action-btn" style="flex: 1; padding: 12px;">Save Notice</button>
+          <button type="button" class="action-link-btn" onclick="closeNoticeForm()" style="border: 2px solid var(--border); padding: 12px; border-radius: 6px;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EVENT EDIT MODAL FORM OVERLAY -->
+  <div id="event-form-overlay" class="form-overlay">
+    <div class="form-card">
+      <span class="modal-close" onclick="closeEventForm()">&times;</span>
+      <h3 id="event-form-title" style="color: var(--primary); margin-bottom: 20px;">Add New Event</h3>
+      
+      <div id="event-error" style="display: none; color: #ef4444; background: #fee2e2; border: 1px solid #fca5a5; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 16px;"></div>
+
+      <form id="event-form" onsubmit="saveEvent(event)">
+        <input type="hidden" id="event-id">
+        
+        <div class="form-group">
+          <label class="form-label" for="event-template">Event Template</label>
+          <select id="event-template" class="form-input" onchange="applyEventTemplate()">
+            <option value="standard">Standard Event</option>
+            <option value="conducted_placement">Conducted Placement Perspective</option>
+            <option value="conducted_workshop">Conducted Workshop</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="event-title">Event Title</label>
+          <input type="text" id="event-title" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="event-date">Date (YYYY-MM-DD or text e.g. "2026-07-20")</label>
+          <input type="text" id="event-date" class="form-input" placeholder="2026-07-20" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="event-time">Time (e.g. "10:00 AM")</label>
+          <input type="text" id="event-time" class="form-input" placeholder="10:00 AM" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="event-venue">Venue</label>
+          <input type="text" id="event-venue" class="form-input" placeholder="Mechanical Seminar Hall" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Event Poster Image</label>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Upload a local image file, or paste an external URL below.</p>
+          <input type="file" id="event-poster-file" class="form-input" accept="image/*" style="padding: 6px; margin-bottom: 8px;" onchange="loadEventPosterFile(this)">
+          <input type="text" id="event-poster" class="form-input" placeholder="https://images.unsplash.com/... (or leave blank if uploaded above)">
+          <div id="event-poster-preview" style="margin-top: 10px; display: none;">
+            <img id="event-poster-preview-el" src="" alt="Preview" style="max-height: 140px; border-radius: 6px; border: 1px solid var(--border); display: block;">
+          </div>
+        </div>
+        <div class="form-group" id="event-reg-group">
+          <label class="form-label" for="event-reg">Registration Form Link (Optional)</label>
+          <input type="text" id="event-reg" class="form-input" placeholder="https://forms.gle/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="event-desc">Event Description</label>
+          <textarea id="event-desc" class="form-input" style="height: 120px; font-family: inherit; resize: vertical;" required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 30px;">
+          <button type="submit" class="action-btn" style="flex: 1; padding: 12px;">Save Event</button>
+          <button type="button" class="action-link-btn" onclick="closeEventForm()" style="border: 2px solid var(--border); padding: 12px; border-radius: 6px;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ACADEMICS LINK EDIT MODAL FORM OVERLAY -->
+  <div id="academics-form-overlay" class="form-overlay">
+    <div class="form-card" style="width: min(500px, 100%);">
+      <span class="modal-close" onclick="closeAcademicsForm()">&times;</span>
+      <h3 style="color: var(--primary); margin-bottom: 20px;">Edit Drive Link Redirect</h3>
+
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <input type="text" id="acad-edit-type" class="form-input" readonly style="background: #f1f5f9; cursor: not-allowed;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Scheme</label>
+        <input type="text" id="acad-edit-scheme" class="form-input" readonly style="background: #f1f5f9; cursor: not-allowed;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Semester</label>
+        <input type="text" id="acad-edit-sem" class="form-input" readonly style="background: #f1f5f9; cursor: not-allowed;">
+      </div>
+
+      <form id="academics-edit-form" onsubmit="saveAcademicsLink(event)">
+        <input type="hidden" id="acad-edit-id">
+        <div class="form-group">
+          <label class="form-label" for="acad-edit-link">Google Drive Folder Link</label>
+          <input type="text" id="acad-edit-link" class="form-input" required placeholder="https://drive.google.com/...">
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 30px;">
+          <button type="submit" class="action-btn" style="flex: 1; padding: 12px;">Update Link</button>
+          <button type="button" class="action-link-btn" onclick="closeAcademicsForm()" style="border: 2px solid var(--border); padding: 12px; border-radius: 6px;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Global variable stores all loaded academics configs to perform local filters
+    let loadedAcademics = [];
+
+    // Helper checks if URL format is valid
+    function isValidUrl(string) {
+      if (!string) return false;
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;  
+      }
+    }
+
+    // Convert a chosen file to Base64 and show preview for Notice image
+    function previewNoticeImage(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        document.getElementById('notice-image-data').value = dataUrl;
+        document.getElementById('notice-img-preview-el').src = dataUrl;
+        document.getElementById('notice-image-preview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Clear the notice image upload
+    function clearNoticeImage() {
+      document.getElementById('notice-image-data').value = '';
+      document.getElementById('notice-image-file').value = '';
+      document.getElementById('notice-img-preview-el').src = '';
+      document.getElementById('notice-image-preview').style.display = 'none';
+    }
+
+    // Convert a chosen file to Base64 and show preview for Event poster
+    function loadEventPosterFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        document.getElementById('event-poster-preview-el').src = dataUrl;
+        document.getElementById('event-poster-preview').style.display = 'block';
+        // Also clear the URL field so the file takes precedence
+        document.getElementById('event-poster').value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Page Load Checks
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuthStatus();
+    });
+
+    function checkAuthStatus() {
+      fetch('/api/admin/check')
+        .then(res => res.json())
+        .then(data => {
+          if (data.authenticated) {
+            showDashboardLayout();
+          } else {
+            showLoginLayout();
+          }
+        })
+        .catch(() => showLoginLayout());
+    }
+
+    function showLoginLayout() {
+      document.getElementById('login-section').style.display = 'flex';
+      document.getElementById('admin-section').style.display = 'none';
+      document.getElementById('login-error').style.display = 'none';
+      document.getElementById('password').value = '';
+    }
+
+    function showDashboardLayout() {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('admin-section').style.display = 'flex';
+      loadSummaryStats();
+      loadNoticesList();
+      loadEventsList();
+      loadAcademicsList();
+    }
+
+    // AUTH ACTIONS
+    function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('login-error');
+
+      fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Invalid credentials');
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          showDashboardLayout();
+        }
+      })
+      .catch(err => {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+      });
+    }
+
+    function handleLogout() {
+      fetch('/api/admin/logout', { method: 'POST' })
+        .then(() => showLoginLayout())
+        .catch(() => showLoginLayout());
+    }
+
+    // SIDEBAR TABS SWITCHING
+    function switchAdminView(viewName) {
+      const views = document.querySelectorAll('.admin-view');
+      views.forEach(v => v.classList.remove('active-view'));
+
+      const sidebarButtons = document.querySelectorAll('.sidebar-btn');
+      sidebarButtons.forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`view-${viewName}`).classList.add('active-view');
+      document.getElementById(`btn-view-${viewName}`).classList.add('active');
+
+      if (viewName === 'dashboard') loadSummaryStats();
+      if (viewName === 'notices') loadNoticesList();
+      if (viewName === 'events') loadEventsList();
+      if (viewName === 'academics') loadAcademicsList();
+    }
+
+    // DASHBOARD OVERVIEW LOAD
+    function loadSummaryStats() {
+      fetch('/api/admin/summary')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('stat-notices').textContent = data.noticesCount;
+          document.getElementById('stat-events').textContent = data.eventsCount;
+          document.getElementById('stat-academics').textContent = data.customAcademicsCount;
+        })
+        .catch(err => console.error('Error loading dashboard stats:', err));
+    }
+
+    // ==========================================
+    // NOTICES MANAGEMENT LOGIC
+    // ==========================================
+    function loadNoticesList() {
+      fetch('/api/notices')
+        .then(res => res.json())
+        .then(notices => {
+          const tbody = document.getElementById('notices-table-body');
+          tbody.innerHTML = '';
+          if (notices.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No notices posted yet.</td></tr>';
+            return;
+          }
+
+          notices.forEach(n => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${n.date}</strong></td>
+              <td>${n.title}</td>
+              <td><span class="label" style="font-size: 11px; font-weight: 700; ${n.type === 'result' ? 'color: var(--glow-cyan); border-color: rgba(0, 180, 216, 0.2);' : ''}">${n.type.toUpperCase()}</span></td>
+              <td style="text-align: right;">
+                <button class="btn-edit" onclick="editNotice(${JSON.stringify(n).replace(/"/g, '&quot;')})">Edit</button>
+                <button class="btn-delete" onclick="deleteNotice(${n.id})">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => console.error('Error loading notices list:', err));
+    }
+
+    function toggleNoticeTypeFields() {
+      const type = document.getElementById('notice-type').value;
+      const templates = [
+        'general', 'result', 'series_exam', 'hackathon',
+        'placement_perspective', 'toppers', 'call_for_team', 'workshop'
+      ];
+      templates.forEach(t => {
+        const el = document.getElementById(`${t.replace(/_/g, '-')}-notice-fields`);
+        if (el) el.style.display = 'none';
+      });
+
+      const selectedEl = document.getElementById(`${type.replace(/_/g, '-')}-notice-fields`);
+      if (selectedEl) selectedEl.style.display = 'block';
+    }
+
+    function toggleCustomCallTitle() {
+      const val = document.getElementById('notice-call-team-dropdown').value;
+      const group = document.getElementById('notice-call-team-custom-group');
+      if (val === 'custom') {
+        group.style.display = 'block';
+      } else {
+        group.style.display = 'none';
+      }
+    }
+
+    function addWorkshopContactInputRow(name = '', mobile = '') {
+      const container = document.getElementById('notice-workshop-contacts-list');
+      const row = document.createElement('div');
+      row.className = 'link-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Name" class="form-input contact-name-input" value="${name}" style="flex: 1;">
+        <input type="text" placeholder="Mobile Number" class="form-input contact-mobile-input" value="${mobile}" style="flex: 1.5;">
+        <button type="button" class="btn-delete" onclick="this.parentElement.remove()" style="font-size: 20px; font-weight: bold;">&times;</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function openNoticeForm(notice = null) {
+      document.getElementById('notice-form-overlay').classList.add('active');
+      document.getElementById('notice-error').style.display = 'none';
+      
+      const titleElement = document.getElementById('notice-form-title');
+      const idInput = document.getElementById('notice-id');
+      const typeSelect = document.getElementById('notice-type');
+      const linksList = document.getElementById('notice-links-list');
+
+      linksList.innerHTML = ''; // reset general links
+
+      if (notice) {
+        titleElement.textContent = 'Edit Notice';
+        idInput.value = notice.id;
+        typeSelect.value = notice.type;
+        typeSelect.disabled = true;
+
+        toggleNoticeTypeFields();
+
+        // Restore image preview if notice has one
+        if (notice.image) {
+          document.getElementById('notice-image-data').value = notice.image;
+          document.getElementById('notice-img-preview-el').src = notice.image;
+          document.getElementById('notice-image-preview').style.display = 'block';
+        } else {
+          document.getElementById('notice-image-data').value = '';
+          document.getElementById('notice-image-preview').style.display = 'none';
+        }
+
+        const tData = notice.template_data || {};
+
+        if (notice.type === 'result') {
+          document.getElementById('notice-semester').value = notice.semester;
+          document.getElementById('notice-instagram').value = tData.instagram || '';
+        } else if (notice.type === 'series_exam') {
+          document.getElementById('notice-series-semester').value = tData.semester || notice.semester;
+          document.getElementById('notice-series-drive-link').value = tData.pdf_link || '';
+        } else if (notice.type === 'hackathon') {
+          document.getElementById('notice-hackathon-title').value = tData.title || notice.title;
+          document.getElementById('notice-hackathon-date').value = tData.date || '';
+          document.getElementById('notice-hackathon-location').value = tData.location || '';
+          document.getElementById('notice-hackathon-desc').value = tData.description || '';
+        } else if (notice.type === 'placement_perspective') {
+          document.getElementById('notice-placement-title').value = tData.title || notice.title;
+          document.getElementById('notice-placement-date').value = tData.date || '';
+          document.getElementById('notice-placement-location').value = tData.location || '';
+          document.getElementById('notice-placement-desc').value = tData.description || '';
+        } else if (notice.type === 'toppers') {
+          document.getElementById('notice-toppers-semester').value = tData.semester || notice.semester;
+          document.getElementById('notice-toppers-list').value = tData.toppers_list || '';
+          document.getElementById('notice-toppers-instagram').value = tData.instagram || '';
+        } else if (notice.type === 'call_for_team') {
+          document.getElementById('notice-call-team-dropdown').value = tData.dropdown_title || 'Call for Magazine Articles';
+          document.getElementById('notice-call-team-custom').value = tData.custom_title || '';
+          document.getElementById('notice-call-team-desc').value = tData.description || notice.description;
+          document.getElementById('notice-call-team-date').value = tData.date || '';
+          document.getElementById('notice-call-team-link').value = tData.link || '';
+          toggleCustomCallTitle();
+        } else if (notice.type === 'workshop') {
+          document.getElementById('notice-workshop-name').value = tData.workshop_name || '';
+          document.getElementById('notice-workshop-mentor').value = tData.mentor || '';
+          document.getElementById('notice-workshop-mode').value = tData.mode || 'Online';
+          document.getElementById('notice-workshop-date').value = tData.date || '';
+          
+          document.getElementById('notice-workshop-contacts-list').innerHTML = '';
+          if (tData.contacts && tData.contacts.length > 0) {
+            tData.contacts.forEach(c => addWorkshopContactInputRow(c.name, c.mobile));
+          } else {
+            addWorkshopContactInputRow();
+          }
+        } else {
+          // general notice
+          document.getElementById('notice-title').value = notice.title;
+          document.getElementById('notice-date').value = notice.date;
+          document.getElementById('notice-desc').value = notice.description;
+
+          if (notice.links && notice.links.length > 0) {
+            notice.links.forEach(l => addLinkInputRow(l.name, l.url));
+          }
+        }
+      } else {
+        titleElement.textContent = 'Add Announcement Notice';
+        idInput.value = '';
+        typeSelect.disabled = false;
+        typeSelect.value = 'general';
+        
+        toggleNoticeTypeFields();
+
+        // Reset all templates inputs
+        document.getElementById('notice-title').value = '';
+        document.getElementById('notice-date').value = '';
+        document.getElementById('notice-desc').value = '';
+        document.getElementById('notice-semester').value = 'Semester 1';
+        document.getElementById('notice-instagram').value = '';
+        document.getElementById('notice-image-data').value = '';
+        document.getElementById('notice-image-preview').style.display = 'none';
+        document.getElementById('notice-image-file').value = '';
+
+        document.getElementById('notice-series-semester').value = 'Semester 1';
+        document.getElementById('notice-series-drive-link').value = '';
+
+        document.getElementById('notice-hackathon-title').value = 'Hackathon';
+        document.getElementById('notice-hackathon-date').value = '';
+        document.getElementById('notice-hackathon-location').value = '';
+        document.getElementById('notice-hackathon-desc').value = '';
+
+        document.getElementById('notice-placement-title').value = 'Placement Perspective';
+        document.getElementById('notice-placement-date').value = '';
+        document.getElementById('notice-placement-location').value = '';
+        document.getElementById('notice-placement-desc').value = '';
+
+        document.getElementById('notice-toppers-semester').value = 'Semester 1';
+        document.getElementById('notice-toppers-list').value = '';
+        document.getElementById('notice-toppers-instagram').value = '';
+
+        document.getElementById('notice-call-team-dropdown').value = 'Call for Magazine Articles';
+        document.getElementById('notice-call-team-custom').value = '';
+        document.getElementById('notice-call-team-desc').value = '';
+        document.getElementById('notice-call-team-date').value = '';
+        document.getElementById('notice-call-team-link').value = '';
+        toggleCustomCallTitle();
+
+        document.getElementById('notice-workshop-name').value = '';
+        document.getElementById('notice-workshop-mentor').value = '';
+        document.getElementById('notice-workshop-mode').value = 'Online';
+        document.getElementById('notice-workshop-date').value = '';
+        document.getElementById('notice-workshop-contacts-list').innerHTML = '';
+        addWorkshopContactInputRow();
+        
+        addLinkInputRow();
+      }
+    }
+
+    function closeNoticeForm() {
+      document.getElementById('notice-form-overlay').classList.remove('active');
+      document.getElementById('notice-form').reset();
+    }
+
+    function addLinkInputRow(name = '', url = '') {
+      const container = document.getElementById('notice-links-list');
+      const row = document.createElement('div');
+      row.className = 'link-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Link Name (e.g. Drive Folder)" class="form-input link-name-input" value="${name}" style="flex: 1;">
+        <input type="text" placeholder="URL (https://...)" class="form-input link-url-input" value="${url}" style="flex: 1.5;">
+        <button type="button" class="btn-delete" onclick="this.parentElement.remove()" style="font-size: 20px; font-weight: bold;">&times;</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function saveNotice(e) {
+      e.preventDefault();
+      const errorDiv = document.getElementById('notice-error');
+      errorDiv.style.display = 'none';
+
+      const id = document.getElementById('notice-id').value;
+      const type = document.getElementById('notice-type').value;
+
+      let payload = { type };
+      let semester = '';
+      let title = '';
+      let description = '';
+      let date = '';
+      let links = [];
+      let template_data = {};
+
+      const today = new Date();
+      const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      const todayBadge = `${months[today.getMonth()]} ${today.getDate()}`;
+
+      if (type === 'result') {
+        semester = document.getElementById('notice-semester').value;
+        const instagram = document.getElementById('notice-instagram').value.trim();
+
+        if (instagram && !isValidUrl(instagram)) {
+          errorDiv.textContent = 'Please enter a valid Instagram URL (starting with http:// or https://) or leave it blank.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        title = `${semester} Results Published`;
+        description = `The results for ${semester} have been published. Students are requested to sign in to the KTU Student Portal and download their scorecards.`;
+        date = todayBadge;
+
+        links.push({ name: 'KTU Student Portal', url: 'https://app.ktu.edu.in/login.htm' });
+        if (instagram) {
+          links.push({ name: 'Announcements', url: instagram });
+        }
+
+        template_data = { instagram };
+
+      } else if (type === 'series_exam') {
+        semester = document.getElementById('notice-series-semester').value;
+        const pdfLink = document.getElementById('notice-series-drive-link').value.trim();
+
+        if (!pdfLink) {
+          errorDiv.textContent = 'Drive PDF link is required.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+        if (!isValidUrl(pdfLink)) {
+          errorDiv.textContent = 'Please enter a valid Drive PDF link (starting with http:// or https://).';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        title = `Series Exam Timetable - ${semester}`;
+        description = `The Series Exam Timetable for ${semester} has been published. Click the link below to access the PDF copy.`;
+        date = todayBadge;
+        links.push({ name: 'Series Exam Timetable PDF', url: pdfLink });
+
+        template_data = { pdf_link: pdfLink, semester };
+
+      } else if (type === 'hackathon') {
+        title = document.getElementById('notice-hackathon-title').value.trim();
+        const hackDate = document.getElementById('notice-hackathon-date').value.trim();
+        const hackLocation = document.getElementById('notice-hackathon-location').value.trim();
+        const hackDesc = document.getElementById('notice-hackathon-desc').value.trim();
+
+        if (!title || !hackDate || !hackLocation) {
+          errorDiv.textContent = 'Title, Date, and Location are required.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        description = hackDesc ? `${hackDesc}\n\nDate: ${hackDate}\nLocation: ${hackLocation}` : `Upcoming Hackathon session.\n\nDate: ${hackDate}\nLocation: ${hackLocation}`;
+        date = todayBadge;
+
+        template_data = { title, date: hackDate, location: hackLocation, description: hackDesc };
+
+      } else if (type === 'placement_perspective') {
+        title = document.getElementById('notice-placement-title').value.trim();
+        const placeDate = document.getElementById('notice-placement-date').value.trim();
+        const placeLocation = document.getElementById('notice-placement-location').value.trim();
+        const placeDesc = document.getElementById('notice-placement-desc').value.trim();
+
+        if (!title || !placeDate || !placeLocation) {
+          errorDiv.textContent = 'Title, Date, and Location are required.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        description = placeDesc ? `${placeDesc}\n\nDate: ${placeDate}\nLocation: ${placeLocation}` : `Placement Perspective session scheduled.\n\nDate: ${placeDate}\nLocation: ${placeLocation}`;
+        date = todayBadge;
+
+        template_data = { title, date: placeDate, location: placeLocation, description: placeDesc };
+
+      } else if (type === 'toppers') {
+        semester = document.getElementById('notice-toppers-semester').value;
+        const toppersList = document.getElementById('notice-toppers-list').value.trim();
+        const toppersInsta = document.getElementById('notice-toppers-instagram').value.trim();
+
+        if (toppersInsta && !isValidUrl(toppersInsta)) {
+          errorDiv.textContent = 'Please enter a valid Instagram URL (starting with http:// or https://) or leave it blank.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        title = `Semester Toppers - ${semester}`;
+        description = toppersList
+          ? `Congratulations to the toppers of Semester ${semester}!\n\nToppers List:\n${toppersList}`
+          : `Congratulations to the toppers of Semester ${semester}!`;
+        date = todayBadge;
+
+        if (toppersInsta) {
+          links.push({ name: 'Announcements', url: toppersInsta });
+        }
+
+        template_data = { semester, toppers_list: toppersList, instagram: toppersInsta };
+
+      } else if (type === 'call_for_team') {
+        const teamDrop = document.getElementById('notice-call-team-dropdown').value;
+        const teamCustom = document.getElementById('notice-call-team-custom').value.trim();
+        const teamDesc = document.getElementById('notice-call-team-desc').value.trim();
+        const teamDate = document.getElementById('notice-call-team-date').value.trim();
+        const teamLink = document.getElementById('notice-call-team-link').value.trim();
+
+        title = teamDrop === 'custom' ? teamCustom : teamDrop;
+
+        if (!title || !teamDesc) {
+          errorDiv.textContent = 'Title and Description are required.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+        if (teamLink && !isValidUrl(teamLink)) {
+          errorDiv.textContent = 'Please enter a valid URL for the link (starting with http:// or https://) or leave it blank.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        description = teamDesc + (teamDate ? `\n\nDeadline: ${teamDate}` : '');
+        date = todayBadge;
+
+        if (teamLink) {
+          links.push({ name: 'Apply / Info', url: teamLink });
+        }
+
+        template_data = { dropdown_title: teamDrop, custom_title: teamCustom, description: teamDesc, date: teamDate, link: teamLink };
+
+      } else if (type === 'workshop') {
+        const workshopName = document.getElementById('notice-workshop-name').value.trim();
+        const mentor = document.getElementById('notice-workshop-mentor').value.trim();
+        const mode = document.getElementById('notice-workshop-mode').value;
+        const workshopDate = document.getElementById('notice-workshop-date').value.trim();
+
+        if (!workshopName || !mentor || !mode || !workshopDate) {
+          errorDiv.textContent = 'Workshop Name, Mentor, Mode, and Date are required.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        const contactRows = document.querySelectorAll('#notice-workshop-contacts-list .link-row');
+        const contacts = [];
+        let contactsDesc = '';
+        for (let row of contactRows) {
+          const cName = row.querySelector('.contact-name-input').value.trim();
+          const cMobile = row.querySelector('.contact-mobile-input').value.trim();
+          if (cName || cMobile) {
+            if (!cName || !cMobile) {
+              errorDiv.textContent = 'Both contact Name and Mobile Number are required.';
+              errorDiv.style.display = 'block';
+              return;
+            }
+            contacts.push({ name: cName, mobile: cMobile });
+            contactsDesc += `\n- ${cName} (${cMobile})`;
+          }
+        }
+
+        title = `Workshop: ${workshopName}`;
+        description = `Join our upcoming workshop on '${workshopName}' mentored by ${mentor} (${mode} mode) scheduled on ${workshopDate}.\n\nFor queries, contact:${contactsDesc || ' (No contacts listed)'}`;
+        date = todayBadge;
+
+        template_data = { workshop_name: workshopName, mentor, mode, date: workshopDate, contacts };
+
+      } else {
+        // general
+        title = document.getElementById('notice-title').value.trim();
+        date = document.getElementById('notice-date').value.trim();
+        description = document.getElementById('notice-desc').value.trim();
+
+        if (!title || !date || !description) {
+          errorDiv.textContent = 'Title, Date, and Description are required.';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        const linkRows = document.querySelectorAll('#notice-links-list .link-row');
+        for (let row of linkRows) {
+          const name = row.querySelector('.link-name-input').value.trim();
+          const url = row.querySelector('.link-url-input').value.trim();
+
+          if (name || url) {
+            if (!name || !url) {
+              errorDiv.textContent = 'Both Link Name and URL are required if link is added.';
+              errorDiv.style.display = 'block';
+              return;
+            }
+            if (!isValidUrl(url)) {
+              errorDiv.textContent = `Please enter a valid URL for "${name}" (starting with http:// or https://).`;
+              errorDiv.style.display = 'block';
+              return;
+            }
+            links.push({ name, url });
+          }
+        }
+      }
+
+      payload.title = title;
+      payload.semester = semester;
+      payload.description = description;
+      payload.date = date;
+      payload.links = links;
+      payload.template_data = template_data;
+      payload.image = document.getElementById('notice-image-data').value || null;
+
+      const method = id ? 'PUT' : 'POST';
+      const endpoint = id ? `/api/admin/notices/${id}` : '/api/admin/notices';
+
+      fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(data => { throw new Error(data.error || 'Failed to save notice') });
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          closeNoticeForm();
+          loadNoticesList();
+          loadSummaryStats();
+        }
+      })
+      .catch(err => {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+      });
+    }
+
+    function deleteNotice(id) {
+      if (confirm('Are you sure you want to delete this notice?')) {
+        fetch(`/api/admin/notices/${id}`, { method: 'DELETE' })
+          .then(res => {
+            if (!res.ok) throw new Error('Failed to delete notice');
+            loadNoticesList();
+            loadSummaryStats();
+          })
+          .catch(err => alert(err.message));
+      }
+    }
+
+
+    // ==========================================
+    // EVENTS MANAGEMENT LOGIC
+    // ==========================================
+    function loadEventsList() {
+      fetch('/api/events')
+        .then(res => res.json())
+        .then(events => {
+          const tbody = document.getElementById('events-table-body');
+          tbody.innerHTML = '';
+          if (events.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No events posted yet.</td></tr>';
+            return;
+          }
+
+          events.forEach(e => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${e.date} | ${e.time}</strong></td>
+              <td>${e.title}</td>
+              <td>${e.venue}</td>
+              <td style="text-align: right;">
+                <button class="btn-edit" onclick="editEvent(${JSON.stringify(e).replace(/"/g, '&quot;')})">Edit</button>
+                <button class="btn-delete" onclick="deleteEvent(${e.id})">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => console.error('Error loading events list:', err));
+    }
+
+    function openEventForm(eventObj = null) {
+      document.getElementById('event-form-overlay').classList.add('active');
+      document.getElementById('event-error').style.display = 'none';
+
+      const titleElement = document.getElementById('event-form-title');
+      const idInput = document.getElementById('event-id');
+      
+      // Reset template select box
+      document.getElementById('event-template').value = 'standard';
+      const regGroup = document.getElementById('event-reg-group');
+      if (regGroup) regGroup.style.display = '';
+
+      if (eventObj) {
+        titleElement.textContent = 'Edit Event Details';
+        idInput.value = eventObj.id;
+        document.getElementById('event-title').value = eventObj.title;
+        document.getElementById('event-date').value = eventObj.date;
+        document.getElementById('event-time').value = eventObj.time;
+        document.getElementById('event-venue').value = eventObj.venue;
+        document.getElementById('event-reg').value = eventObj.registration_link;
+        document.getElementById('event-desc').value = eventObj.description;
+
+        // Restore poster preview — check if it's a Base64 string or a URL
+        const poster = eventObj.poster_url || '';
+        if (poster.startsWith('data:')) {
+          // Uploaded file — show in preview, clear text URL
+          document.getElementById('event-poster-preview-el').src = poster;
+          document.getElementById('event-poster-preview').style.display = 'block';
+          document.getElementById('event-poster').value = '';
+        } else {
+          // External URL — fill in URL field, hide preview
+          document.getElementById('event-poster').value = poster;
+          document.getElementById('event-poster-preview').style.display = 'none';
+          document.getElementById('event-poster-preview-el').src = '';
+        }
+      } else {
+        titleElement.textContent = 'Add New Event';
+        idInput.value = '';
+        document.getElementById('event-form').reset();
+        document.getElementById('event-poster-preview').style.display = 'none';
+        document.getElementById('event-poster-preview-el').src = '';
+      }
+    }
+
+    function closeEventForm() {
+      document.getElementById('event-form-overlay').classList.remove('active');
+      document.getElementById('event-form').reset();
+      document.getElementById('event-poster-preview').style.display = 'none';
+      document.getElementById('event-poster-preview-el').src = '';
+    }
+
+    function applyEventTemplate() {
+      const template = document.getElementById('event-template').value;
+      const titleInput = document.getElementById('event-title');
+      const descInput = document.getElementById('event-desc');
+      const regGroup = document.getElementById('event-reg-group');
+
+      if (template === 'conducted_placement') {
+        titleInput.value = 'Conducted Placement Perspective';
+        descInput.value = 'We successfully conducted a Placement Perspective session covering career prep, resume metrics, and campus recruitment insights for students.';
+        // Conducted = past event, no registration needed
+        if (regGroup) regGroup.style.display = 'none';
+        document.getElementById('event-reg').value = '';
+      } else if (template === 'conducted_workshop') {
+        titleInput.value = 'Conducted Workshop';
+        descInput.value = 'A hands-on technical workshop covering modern engineering tools, practical labs, and design workflows.';
+        if (regGroup) regGroup.style.display = 'none';
+        document.getElementById('event-reg').value = '';
+      } else {
+        // standard upcoming event — show registration link field
+        if (regGroup) regGroup.style.display = '';
+        // reset title and description if it was prefilled by conducted templates
+        if (titleInput.value === 'Conducted Placement Perspective' || titleInput.value === 'Conducted Workshop') {
+          titleInput.value = '';
+        }
+        if (descInput.value.startsWith('We successfully conducted') || descInput.value.startsWith('A hands-on technical')) {
+          descInput.value = '';
+        }
+      }
+    }
+
+    function saveEvent(e) {
+      e.preventDefault();
+      const errorDiv = document.getElementById('event-error');
+      errorDiv.style.display = 'none';
+
+      const id = document.getElementById('event-id').value;
+      const title = document.getElementById('event-title').value.trim();
+      const date = document.getElementById('event-date').value.trim();
+      const time = document.getElementById('event-time').value.trim();
+      const venue = document.getElementById('event-venue').value.trim();
+      // poster_url: prefer uploaded file Base64, fall back to URL input
+      const uploadedPoster = document.getElementById('event-poster-preview-el').src;
+      const urlPoster = document.getElementById('event-poster').value.trim();
+      const poster_url = (uploadedPoster && !uploadedPoster.endsWith(window.location.href)) ? uploadedPoster : urlPoster;
+      const registration_link = document.getElementById('event-reg').value.trim();
+      const description = document.getElementById('event-desc').value.trim();
+
+      // VALIDATION
+      if (!title || !date || !time || !venue || !poster_url || !description) {
+        errorDiv.textContent = 'All fields except registration link are required. Please upload an image or paste a URL.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!isValidUrl(poster_url)) {
+        errorDiv.textContent = 'Please enter a valid poster image URL (starting with http:// or https://).';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (registration_link && !isValidUrl(registration_link)) {
+        errorDiv.textContent = 'Please enter a valid registration form URL (starting with http:// or https://).';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const payload = { title, date, time, venue, poster_url, registration_link, description };
+      const method = id ? 'PUT' : 'POST';
+      const endpoint = id ? `/api/admin/events/${id}` : '/api/admin/events';
+
+      fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(data => { throw new Error(data.error || 'Failed to save event') });
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          closeEventForm();
+          loadEventsList();
+          loadSummaryStats();
+        }
+      })
+      .catch(err => {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+      });
+    }
+
+    function deleteEvent(id) {
+      if (confirm('Are you sure you want to delete this event?')) {
+        fetch(`/api/admin/events/${id}`, { method: 'DELETE' })
+          .then(res => {
+            if (!res.ok) throw new Error('Failed to delete event');
+            loadEventsList();
+            loadSummaryStats();
+          })
+          .catch(err => alert(err.message));
+      }
+    }
+
+
+    // ==========================================
+    // ACADEMICS CONFIG MANAGEMENT LOGIC
+    // ==========================================
+    function loadAcademicsList() {
+      fetch('/api/admin/academics')
+        .then(res => res.json())
+        .then(configs => {
+          loadedAcademics = configs; // store globally for search
+          filterAcademics();
+        })
+        .catch(err => console.error('Error loading academics list:', err));
+    }
+
+    function filterAcademics() {
+      const type = document.getElementById('acad-filter-type').value;
+      const scheme = document.getElementById('acad-filter-scheme').value;
+      const semester = document.getElementById('acad-filter-sem').value;
+
+      const tbody = document.getElementById('academics-table-body');
+      tbody.innerHTML = '';
+
+      const filtered = loadedAcademics.filter(c => {
+        const matchesType = type ? c.type === type : true;
+        const matchesScheme = scheme ? c.scheme === scheme : true;
+        const matchesSem = semester ? c.semester === semester : true;
+        return matchesType && matchesScheme && matchesSem;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No matching configuration records found.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(c => {
+        const statusBadge = c.drive_link
+          ? `<a href="${c.drive_link}" target="_blank" style="color: #3b82f6; font-size: 13.5px; text-decoration: underline;">Link Folder &rarr;</a>`
+          : `<span style="color: var(--text-muted); font-size: 13px; font-style: italic;">Not configured</span>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="label" style="font-size: 11px;">${c.type.toUpperCase()}</span></td>
+          <td><strong>${c.scheme} Scheme</strong></td>
+          <td>${c.semester}</td>
+          <td>${statusBadge}</td>
+          <td style="text-align: right;">
+            <button class="btn-edit" onclick="openAcademicsForm(${JSON.stringify(c).replace(/"/g, '&quot;')})">Edit Link</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openAcademicsForm(c) {
+      document.getElementById('academics-form-overlay').classList.add('active');
+      
+      document.getElementById('acad-edit-id').value = c.id;
+      document.getElementById('acad-edit-type').value = c.type.toUpperCase();
+      document.getElementById('acad-edit-scheme').value = `${c.scheme} Scheme`;
+      document.getElementById('acad-edit-sem').value = c.semester;
+      document.getElementById('acad-edit-link').value = c.drive_link || '';
+    }
+
+    function closeAcademicsForm() {
+      document.getElementById('academics-form-overlay').classList.remove('active');
+      document.getElementById('academics-edit-form').reset();
+    }
+
+    function saveAcademicsLink(e) {
+      e.preventDefault();
+      const id = document.getElementById('acad-edit-id').value;
+      const drive_link = document.getElementById('acad-edit-link').value.trim();
+
+      // VALIDATION
+      if (!drive_link) {
+        alert('Google Drive Link is required');
+        return;
+      }
+      if (!isValidUrl(drive_link)) {
+        alert('Please enter a valid Google Drive folder URL (starting with http:// or https://)');
+        return;
+      }
+
+      fetch(`/api/admin/academics/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ drive_link })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to update academics link');
+        return res.json();
+      })
+      .then(data => {
+        if (data.success) {
+          closeAcademicsForm();
+          loadAcademicsList();
+          loadSummaryStats();
+        }
+      })
+      .catch(err => alert(err.message));
+    }
+  </script>
+</body>
+</html>

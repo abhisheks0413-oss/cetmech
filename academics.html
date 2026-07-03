@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Academics | Mechanical Engineering | College of Engineering Trivandrum</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">CET</div>
+      <span>Mechanical Engineering</span>
+    </div>
+    <nav id="tab-nav">
+      <a id="nav-home-view" href="index.html">Home</a>
+      <a id="nav-about-view" href="about.html">About</a>
+      <a id="nav-academics-view" href="academics.html" class="active">Academics</a>
+      <a id="nav-students-view" href="students.html">Students</a>
+      <a id="nav-notices-view" href="notices.html">Notices</a>
+      <a id="nav-help-view" href="help.html">Help</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="academics-view" class="tab-view active-view" style="padding-top: 70px;">
+      <section>
+        <div class="section-head">
+          <h2>Academic Portals</h2>
+          <p>Direct institutional access to core academic tracking criteria, syllabus frameworks, and student digital reference vaults.</p>
+        </div>
+        <div class="academics-wizard-card">
+          <!-- Progress Bar / Step Indicators (3 steps only) -->
+          <div class="wizard-steps-indicator">
+            <div class="step-indicator active" id="acad-step-ind-1">1. Type</div>
+            <div class="step-indicator" id="acad-step-ind-2">2. Scheme</div>
+            <div class="step-indicator" id="acad-step-ind-3">3. Semester</div>
+          </div>
+
+          <div class="wizard-content">
+            <!-- Step 1: Type Selection -->
+            <div class="wizard-step active-step" id="acad-step-1">
+              <h3 class="wizard-step-title">Select Resource Type</h3>
+              <p class="wizard-step-desc">Choose whether you want to access the syllabus or study resources.</p>
+              <div class="wizard-buttons-grid">
+                <button class="wizard-btn-large" onclick="selectAcadType('syllabus')">
+                  <span class="btn-icon">📋</span>
+                  <strong>Syllabus</strong>
+                  <span>Curriculum &amp; Scheme framework</span>
+                </button>
+                <button class="wizard-btn-large" onclick="selectAcadType('resources')">
+                  <span class="btn-icon">📁</span>
+                  <strong>Resources</strong>
+                  <span>Lecture slides, notes &amp; papers</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Scheme Selection -->
+            <div class="wizard-step" id="acad-step-2">
+              <h3 class="wizard-step-title">Select Scheme</h3>
+              <p class="wizard-step-desc">Choose the curriculum regulation scheme.</p>
+              <div class="wizard-buttons-grid">
+                <button class="wizard-btn-large" onclick="selectAcadScheme('2024')">
+                  <strong>2024 Scheme</strong>
+                  <span>Latest KTU scheme regulations</span>
+                </button>
+                <button class="wizard-btn-large" onclick="selectAcadScheme('2019')">
+                  <strong>2019 Scheme</strong>
+                  <span>Previous KTU scheme regulations</span>
+                </button>
+              </div>
+              <div class="wizard-footer">
+                <button class="action-link-btn" onclick="prevAcadStep()">&larr; Back</button>
+              </div>
+            </div>
+
+            <!-- Step 3: Semester Selection — selecting redirects directly to Drive -->
+            <div class="wizard-step" id="acad-step-3">
+              <h3 class="wizard-step-title">Select Semester</h3>
+              <p class="wizard-step-desc">Choose your semester. You will be redirected to the Google Drive folder.</p>
+              <div class="wizard-buttons-compact-grid" id="semesters-list">
+                <!-- Dynamically rendered semesters 1-8 -->
+              </div>
+              <div class="wizard-footer">
+                <button class="action-link-btn" onclick="prevAcadStep()">&larr; Back</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        Mechanical Engineering — College of Engineering Trivandrum
+      </div>
+      
+      <!-- Centralized Social Connections Matrix Hub -->
+      <div class="footer-social-hub">
+        <span class="social-hub-title">Connect to us</span>
+        <div class="social-tabs-row">
+          
+          <!-- LinkedIn Platform Symbol -->
+          <div class="social-tab-block">
+            <a class="social-interactive-tab" href="https://www.linkedin.com/company/me-association-cet/" target="_blank" rel="noopener" aria-label="LinkedIn Profile">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </a>
+            <span class="social-micro-label">linkedin</span>
+          </div>
+
+          <!-- Instagram Platform Symbol -->
+          <div class="social-tab-block">
+            <a class="social-interactive-tab" href="https://www.instagram.com/me_association.cet?igsh=MWpldDB6czlwd2J2dA==" target="_blank" rel="noopener" aria-label="Instagram Profile">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+            <span class="social-micro-label">instagram</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="footer-timestamp">
+        Official Student Portal 2026
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
