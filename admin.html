@@ -315,6 +315,10 @@
       }
     }
   </style>
+  <!-- Flatpickr Date/Time Picker (lightweight, no deps) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body class="admin-body">
 
@@ -526,7 +530,7 @@
         
         <div class="form-group">
           <label class="form-label" for="notice-type">Notice Type</label>
-          <select id="notice-type" class="form-input" onchange="toggleNoticeTypeFields()" required>
+          <select id="notice-type" class="form-input" onchange="toggleNoticeTypeFields(); autoGenerateNoticeFields();" required>
             <option value="general">General Notice</option>
             <option value="result">Result Published Template</option>
             <option value="series_exam">Series Exam Timetable Template</option>
@@ -538,36 +542,25 @@
           </select>
         </div>
 
-        <!-- General Notice Fields -->
-        <div id="general-notice-fields">
-          <div class="form-group">
-            <label class="form-label" for="notice-title">Title</label>
-            <input type="text" id="notice-title" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-date">Date Badge (e.g. "JUN 30" or "INFO")</label>
-            <input type="text" id="notice-date" class="form-input" placeholder="JUN 30">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-desc">Description</label>
-            <textarea id="notice-desc" class="form-input" style="height: 120px; font-family: inherit; resize: vertical;"></textarea>
-          </div>
-
-          <!-- Dynamic Links list -->
-          <div class="form-group">
-            <label class="form-label">Relevant Links</label>
-            <div id="notice-links-list">
-              <!-- JS Injected Link name/url rows -->
-            </div>
-            <button type="button" class="action-link-btn" onclick="addLinkInputRow()" style="margin-top: 8px;">+ Add Link</button>
-          </div>
+        <!-- Universal Notice Fields — Always Visible and Customizable -->
+        <div class="form-group">
+          <label class="form-label" for="notice-title">Title</label>
+          <input type="text" id="notice-title" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="notice-date">Notice Date</label>
+          <input type="text" id="notice-date" class="form-input flatpickr-notice-date" placeholder="Select date..." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="notice-desc">Description / Content</label>
+          <textarea id="notice-desc" class="form-input" style="height: 120px; font-family: inherit; resize: vertical;" required></textarea>
         </div>
 
         <!-- Result Template Fields -->
         <div id="result-notice-fields" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="notice-semester">Select Semester</label>
-            <select id="notice-semester" class="form-input">
+            <select id="notice-semester" class="form-input" onchange="autoGenerateNoticeFields()">
               <option value="Semester 1">Semester 1</option>
               <option value="Semester 2">Semester 2</option>
               <option value="Semester 3">Semester 3</option>
@@ -580,7 +573,7 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-instagram">Instagram Announcements Link (Optional)</label>
-            <input type="text" id="notice-instagram" class="form-input" placeholder="https://instagram.com/... (optional)">
+            <input type="text" id="notice-instagram" class="form-input" placeholder="https://instagram.com/... (optional)" oninput="autoGenerateNoticeFields()">
           </div>
         </div>
 
@@ -588,7 +581,7 @@
         <div id="series-exam-notice-fields" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="notice-series-semester">Select Semester</label>
-            <select id="notice-series-semester" class="form-input">
+            <select id="notice-series-semester" class="form-input" onchange="autoGenerateNoticeFields()">
               <option value="Semester 1">Semester 1</option>
               <option value="Semester 2">Semester 2</option>
               <option value="Semester 3">Semester 3</option>
@@ -601,47 +594,31 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-series-drive-link">Drive PDF Link</label>
-            <input type="text" id="notice-series-drive-link" class="form-input" placeholder="https://drive.google.com/file/d/...">
+            <input type="text" id="notice-series-drive-link" class="form-input" placeholder="https://drive.google.com/file/d/..." oninput="autoGenerateNoticeFields()">
           </div>
         </div>
 
         <!-- Upcoming Hackathon Template Fields -->
         <div id="hackathon-notice-fields" style="display: none;">
           <div class="form-group">
-            <label class="form-label" for="notice-hackathon-title">Title</label>
-            <input type="text" id="notice-hackathon-title" class="form-input" value="Hackathon">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-hackathon-date">Date</label>
-            <input type="text" id="notice-hackathon-date" class="form-input" placeholder="e.g. 2026-07-20">
+            <label class="form-label" for="notice-hackathon-date">Hackathon Date</label>
+            <input type="text" id="notice-hackathon-date" class="form-input flatpickr-date" placeholder="Select date..." oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-hackathon-location">Location / Venue</label>
-            <input type="text" id="notice-hackathon-location" class="form-input" placeholder="e.g. Mechanical Seminar Hall">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-hackathon-desc">Description (Optional)</label>
-            <textarea id="notice-hackathon-desc" class="form-input" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
+            <input type="text" id="notice-hackathon-location" class="form-input" placeholder="e.g. Mechanical Seminar Hall" oninput="autoGenerateNoticeFields()">
           </div>
         </div>
 
         <!-- Placement Perspective Template Fields -->
         <div id="placement-perspective-notice-fields" style="display: none;">
           <div class="form-group">
-            <label class="form-label" for="notice-placement-title">Title</label>
-            <input type="text" id="notice-placement-title" class="form-input" value="Placement Perspective">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-placement-date">Date</label>
-            <input type="text" id="notice-placement-date" class="form-input" placeholder="e.g. 2026-07-25">
+            <label class="form-label" for="notice-placement-date">Placement Date</label>
+            <input type="text" id="notice-placement-date" class="form-input flatpickr-date" placeholder="Select date..." oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-placement-location">Location / Venue</label>
-            <input type="text" id="notice-placement-location" class="form-input" placeholder="e.g. Mechanical Seminar Hall">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-placement-desc">Description (Optional)</label>
-            <textarea id="notice-placement-desc" class="form-input" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
+            <input type="text" id="notice-placement-location" class="form-input" placeholder="e.g. Mechanical Seminar Hall" oninput="autoGenerateNoticeFields()">
           </div>
         </div>
 
@@ -649,7 +626,7 @@
         <div id="toppers-notice-fields" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="notice-toppers-semester">Select Semester</label>
-            <select id="notice-toppers-semester" class="form-input">
+            <select id="notice-toppers-semester" class="form-input" onchange="autoGenerateNoticeFields()">
               <option value="Semester 1">Semester 1</option>
               <option value="Semester 2">Semester 2</option>
               <option value="Semester 3">Semester 3</option>
@@ -662,11 +639,11 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-toppers-list">Toppers List</label>
-            <textarea id="notice-toppers-list" class="form-input" placeholder="Name 1 (GPA: 9.8) - Rank 1&#10;Name 2 (GPA: 9.6) - Rank 2" style="height: 100px; font-family: inherit; resize: vertical;"></textarea>
+            <textarea id="notice-toppers-list" class="form-input" placeholder="Name 1 (GPA: 9.8) - Rank 1&#10;Name 2 (GPA: 9.6) - Rank 2" style="height: 100px; font-family: inherit; resize: vertical;" oninput="autoGenerateNoticeFields()"></textarea>
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-toppers-instagram">Instagram Announcements Link (Optional)</label>
-            <input type="text" id="notice-toppers-instagram" class="form-input" placeholder="https://instagram.com/...">
+            <input type="text" id="notice-toppers-instagram" class="form-input" placeholder="https://instagram.com/..." oninput="autoGenerateNoticeFields()">
           </div>
         </div>
 
@@ -674,7 +651,7 @@
         <div id="call-for-team-notice-fields" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="notice-call-team-dropdown">Choose Title Option</label>
-            <select id="notice-call-team-dropdown" class="form-input" onchange="toggleCustomCallTitle()">
+            <select id="notice-call-team-dropdown" class="form-input" onchange="toggleCustomCallTitle(); autoGenerateNoticeFields();">
               <option value="Call for Magazine Articles">Call for Magazine Articles</option>
               <option value="Call for Performances">Call for Performances</option>
               <option value="Call for Volunteers">Call for Volunteers</option>
@@ -683,19 +660,15 @@
           </div>
           <div class="form-group" id="notice-call-team-custom-group" style="display: none;">
             <label class="form-label" for="notice-call-team-custom">Custom Title</label>
-            <input type="text" id="notice-call-team-custom" class="form-input" placeholder="e.g. Call for Editors">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="notice-call-team-desc">Description</label>
-            <textarea id="notice-call-team-desc" class="form-input" style="height: 120px; font-family: inherit; resize: vertical;"></textarea>
+            <input type="text" id="notice-call-team-custom" class="form-input" placeholder="e.g. Call for Editors" oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-call-team-date">Deadline / Date <span style="font-weight:400;color:var(--text-muted);">(Optional)</span></label>
-            <input type="text" id="notice-call-team-date" class="form-input" placeholder="e.g. July 20, 2026">
+            <input type="text" id="notice-call-team-date" class="form-input flatpickr-date" placeholder="Select date..." oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-call-team-link">Submission / Info Link <span style="font-weight:400;color:var(--text-muted);">(Optional)</span></label>
-            <input type="text" id="notice-call-team-link" class="form-input" placeholder="https://forms.gle/...">
+            <input type="text" id="notice-call-team-link" class="form-input" placeholder="https://forms.gle/..." oninput="autoGenerateNoticeFields()">
           </div>
         </div>
 
@@ -703,31 +676,40 @@
         <div id="workshop-notice-fields" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="notice-workshop-name">Workshop Name</label>
-            <input type="text" id="notice-workshop-name" class="form-input" placeholder="e.g. Fusion 360 & CAD Modelling">
+            <input type="text" id="notice-workshop-name" class="form-input" placeholder="e.g. Fusion 360 & CAD Modelling" oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-workshop-mentor">Mentor</label>
-            <input type="text" id="notice-workshop-mentor" class="form-input" placeholder="e.g. Dr. Anver Sadath">
+            <input type="text" id="notice-workshop-mentor" class="form-input" placeholder="e.g. Dr. Anver Sadath" oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label" for="notice-workshop-mode">Mode</label>
-            <select id="notice-workshop-mode" class="form-input">
+            <select id="notice-workshop-mode" class="form-input" onchange="autoGenerateNoticeFields()">
               <option value="Online">Online</option>
               <option value="Offline">Offline</option>
               <option value="Hybrid">Hybrid</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label" for="notice-workshop-date">Date</label>
-            <input type="text" id="notice-workshop-date" class="form-input" placeholder="e.g. 2026-07-30">
+            <label class="form-label" for="notice-workshop-date">Workshop Date</label>
+            <input type="text" id="notice-workshop-date" class="form-input flatpickr-date" placeholder="Select date..." oninput="autoGenerateNoticeFields()">
           </div>
           <div class="form-group">
             <label class="form-label">Contacts</label>
             <div id="notice-workshop-contacts-list">
               <!-- Dynamically added contacts row -->
             </div>
-            <button type="button" class="action-link-btn" onclick="addWorkshopContactInputRow()" style="margin-top: 8px;">+ Add Contact</button>
+            <button type="button" class="action-link-btn" onclick="addWorkshopContactInputRow(); autoGenerateNoticeFields();" style="margin-top: 8px;">+ Add Contact</button>
           </div>
+        </div>
+
+        <!-- Dynamic Links list (Always Visible) -->
+        <div class="form-group">
+          <label class="form-label">Relevant Links / Attachments <span style="font-weight:400;color:var(--text-muted);">(Optional)</span></label>
+          <div id="notice-links-list">
+            <!-- JS Injected Link name/url rows -->
+          </div>
+          <button type="button" class="action-link-btn" onclick="addLinkInputRow()" style="margin-top: 8px;">+ Add Link</button>
         </div>
 
         <!-- Image Upload for Notice -->
@@ -774,12 +756,12 @@
           <input type="text" id="event-title" class="form-input" required>
         </div>
         <div class="form-group">
-          <label class="form-label" for="event-date">Date (YYYY-MM-DD or text e.g. "2026-07-20")</label>
-          <input type="text" id="event-date" class="form-input" placeholder="2026-07-20" required>
+          <label class="form-label" for="event-date">Event Date</label>
+          <input type="text" id="event-date" class="form-input flatpickr-date" placeholder="Select date..." required>
         </div>
         <div class="form-group">
-          <label class="form-label" for="event-time">Time (e.g. "10:00 AM")</label>
-          <input type="text" id="event-time" class="form-input" placeholder="10:00 AM" required>
+          <label class="form-label" for="event-time">Event Time</label>
+          <input type="text" id="event-time" class="form-input flatpickr-time" placeholder="Select time..." required>
         </div>
         <div class="form-group">
           <label class="form-label" for="event-venue">Venue</label>
@@ -797,6 +779,10 @@
         <div class="form-group" id="event-reg-group">
           <label class="form-label" for="event-reg">Registration Form Link (Optional)</label>
           <input type="text" id="event-reg" class="form-input" placeholder="https://forms.gle/...">
+        </div>
+        <div class="form-group" id="event-insta-group">
+          <label class="form-label" for="event-insta">Instagram Link (Optional)</label>
+          <input type="text" id="event-insta" class="form-input" placeholder="https://instagram.com/...">
         </div>
         <div class="form-group">
           <label class="form-label" for="event-desc">Event Description</label>
@@ -928,6 +914,19 @@
       loadNoticesList();
       loadEventsList();
       loadAcademicsList();
+      setTimeout(initFlatpickr, 100); // Re-init after dashboard renders
+    }
+
+    function editNotice(id) {
+      if (!window.loadedNotices) return;
+      const notice = window.loadedNotices.find(n => n.id === id);
+      if (notice) openNoticeForm(notice);
+    }
+
+    function editEvent(id) {
+      if (!window.loadedEvents) return;
+      const eventObj = window.loadedEvents.find(e => e.id === id);
+      if (eventObj) openEventForm(eventObj);
     }
 
     // AUTH ACTIONS
@@ -999,6 +998,7 @@
       fetch('/api/notices')
         .then(res => res.json())
         .then(notices => {
+          window.loadedNotices = notices;
           const tbody = document.getElementById('notices-table-body');
           tbody.innerHTML = '';
           if (notices.length === 0) {
@@ -1013,7 +1013,7 @@
               <td>${n.title}</td>
               <td><span class="label" style="font-size: 11px; font-weight: 700; ${n.type === 'result' ? 'color: var(--glow-cyan); border-color: rgba(0, 180, 216, 0.2);' : ''}">${n.type.toUpperCase()}</span></td>
               <td style="text-align: right;">
-                <button class="btn-edit" onclick="editNotice(${JSON.stringify(n).replace(/"/g, '&quot;')})">Edit</button>
+                <button class="btn-edit" onclick="editNotice(${n.id})">Edit</button>
                 <button class="btn-delete" onclick="deleteNotice(${n.id})">Delete</button>
               </td>
             `;
@@ -1035,7 +1035,10 @@
       });
 
       const selectedEl = document.getElementById(`${type.replace(/_/g, '-')}-notice-fields`);
-      if (selectedEl) selectedEl.style.display = 'block';
+      if (selectedEl) {
+        selectedEl.style.display = 'block';
+        setTimeout(initFlatpickr, 50); // Bind pickers to newly-visible inputs
+      }
     }
 
     function toggleCustomCallTitle() {
@@ -1060,6 +1063,22 @@
       container.appendChild(row);
     }
 
+    // Dirtiness tracking for live template preview generator
+    window.isNoticeTitleDirty = false;
+    window.isNoticeDescDirty = false;
+
+    // Add event listeners on title and description inputs to mark them as dirty
+    document.addEventListener('DOMContentLoaded', () => {
+      const titleInput = document.getElementById('notice-title');
+      const descInput = document.getElementById('notice-desc');
+      if (titleInput) {
+        titleInput.addEventListener('input', () => { window.isNoticeTitleDirty = true; });
+      }
+      if (descInput) {
+        descInput.addEventListener('input', () => { window.isNoticeDescDirty = true; });
+      }
+    });
+
     function openNoticeForm(notice = null) {
       document.getElementById('notice-form-overlay').classList.add('active');
       document.getElementById('notice-error').style.display = 'none';
@@ -1069,13 +1088,21 @@
       const typeSelect = document.getElementById('notice-type');
       const linksList = document.getElementById('notice-links-list');
 
-      linksList.innerHTML = ''; // reset general links
+      linksList.innerHTML = ''; // reset links
 
       if (notice) {
         titleElement.textContent = 'Edit Notice';
         idInput.value = notice.id;
         typeSelect.value = notice.type;
         typeSelect.disabled = true;
+
+        // When editing, do not overwrite the loaded text automatically
+        window.isNoticeTitleDirty = true;
+        window.isNoticeDescDirty = true;
+
+        document.getElementById('notice-title').value = notice.title;
+        document.getElementById('notice-date').value = notice.date;
+        document.getElementById('notice-desc').value = notice.description;
 
         toggleNoticeTypeFields();
 
@@ -1098,15 +1125,11 @@
           document.getElementById('notice-series-semester').value = tData.semester || notice.semester;
           document.getElementById('notice-series-drive-link').value = tData.pdf_link || '';
         } else if (notice.type === 'hackathon') {
-          document.getElementById('notice-hackathon-title').value = tData.title || notice.title;
           document.getElementById('notice-hackathon-date').value = tData.date || '';
           document.getElementById('notice-hackathon-location').value = tData.location || '';
-          document.getElementById('notice-hackathon-desc').value = tData.description || '';
         } else if (notice.type === 'placement_perspective') {
-          document.getElementById('notice-placement-title').value = tData.title || notice.title;
           document.getElementById('notice-placement-date').value = tData.date || '';
           document.getElementById('notice-placement-location').value = tData.location || '';
-          document.getElementById('notice-placement-desc').value = tData.description || '';
         } else if (notice.type === 'toppers') {
           document.getElementById('notice-toppers-semester').value = tData.semester || notice.semester;
           document.getElementById('notice-toppers-list').value = tData.toppers_list || '';
@@ -1114,7 +1137,6 @@
         } else if (notice.type === 'call_for_team') {
           document.getElementById('notice-call-team-dropdown').value = tData.dropdown_title || 'Call for Magazine Articles';
           document.getElementById('notice-call-team-custom').value = tData.custom_title || '';
-          document.getElementById('notice-call-team-desc').value = tData.description || notice.description;
           document.getElementById('notice-call-team-date').value = tData.date || '';
           document.getElementById('notice-call-team-link').value = tData.link || '';
           toggleCustomCallTitle();
@@ -1130,15 +1152,24 @@
           } else {
             addWorkshopContactInputRow();
           }
-        } else {
-          // general notice
-          document.getElementById('notice-title').value = notice.title;
-          document.getElementById('notice-date').value = notice.date;
-          document.getElementById('notice-desc').value = notice.description;
+        }
 
-          if (notice.links && notice.links.length > 0) {
-            notice.links.forEach(l => addLinkInputRow(l.name, l.url));
-          }
+        // Restore links list
+        if (notice.links && notice.links.length > 0) {
+          notice.links.forEach(l => {
+            // Only show manually added links in the editable list
+            // Avoid showing pre-defined template links
+            let isTemplateLink = false;
+            if (notice.type === 'result' && l.name === 'KTU Student Portal') isTemplateLink = true;
+            if (notice.type === 'result' && l.name === 'Announcements') isTemplateLink = true;
+            if (notice.type === 'series_exam' && l.name === 'Series Exam Timetable PDF') isTemplateLink = true;
+            if (notice.type === 'toppers' && l.name === 'Announcements') isTemplateLink = true;
+            if (notice.type === 'call_for_team' && l.name === 'Apply / Info') isTemplateLink = true;
+
+            if (!isTemplateLink) {
+              addLinkInputRow(l.name, l.url);
+            }
+          });
         }
       } else {
         titleElement.textContent = 'Add Announcement Notice';
@@ -1146,11 +1177,13 @@
         typeSelect.disabled = false;
         typeSelect.value = 'general';
         
+        window.isNoticeTitleDirty = false;
+        window.isNoticeDescDirty = false;
+
         toggleNoticeTypeFields();
 
         // Reset all templates inputs
         document.getElementById('notice-title').value = '';
-        document.getElementById('notice-date').value = '';
         document.getElementById('notice-desc').value = '';
         document.getElementById('notice-semester').value = 'Semester 1';
         document.getElementById('notice-instagram').value = '';
@@ -1161,15 +1194,11 @@
         document.getElementById('notice-series-semester').value = 'Semester 1';
         document.getElementById('notice-series-drive-link').value = '';
 
-        document.getElementById('notice-hackathon-title').value = 'Hackathon';
         document.getElementById('notice-hackathon-date').value = '';
         document.getElementById('notice-hackathon-location').value = '';
-        document.getElementById('notice-hackathon-desc').value = '';
 
-        document.getElementById('notice-placement-title').value = 'Placement Perspective';
         document.getElementById('notice-placement-date').value = '';
         document.getElementById('notice-placement-location').value = '';
-        document.getElementById('notice-placement-desc').value = '';
 
         document.getElementById('notice-toppers-semester').value = 'Semester 1';
         document.getElementById('notice-toppers-list').value = '';
@@ -1177,7 +1206,6 @@
 
         document.getElementById('notice-call-team-dropdown').value = 'Call for Magazine Articles';
         document.getElementById('notice-call-team-custom').value = '';
-        document.getElementById('notice-call-team-desc').value = '';
         document.getElementById('notice-call-team-date').value = '';
         document.getElementById('notice-call-team-link').value = '';
         toggleCustomCallTitle();
@@ -1190,12 +1218,86 @@
         addWorkshopContactInputRow();
         
         addLinkInputRow();
+
+        // Default Date Badge prefill
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        const d = new Date();
+        const todayBadge = months[d.getMonth()] + " " + d.getDate();
+        document.getElementById('notice-date').value = todayBadge;
       }
     }
 
     function closeNoticeForm() {
       document.getElementById('notice-form-overlay').classList.remove('active');
       document.getElementById('notice-form').reset();
+    }
+
+    function autoGenerateNoticeFields() {
+      const type = document.getElementById('notice-type').value;
+      const titleInput = document.getElementById('notice-title');
+      const descInput = document.getElementById('notice-desc');
+
+      let titleVal = '';
+      let descVal = '';
+
+      if (type === 'result') {
+        const sem = document.getElementById('notice-semester').value;
+        titleVal = `${sem} Results Published`;
+        descVal = `The results for ${sem} have been published. Students are requested to sign in to the KTU Student Portal and download their scorecards.`;
+      } else if (type === 'series_exam') {
+        const sem = document.getElementById('notice-series-semester').value;
+        titleVal = `Series Exam Timetable - ${sem}`;
+        descVal = `The Series Exam Timetable for ${sem} has been published. Click the link below to access the PDF copy.`;
+      } else if (type === 'hackathon') {
+        const hackDate = document.getElementById('notice-hackathon-date').value.trim();
+        const hackLoc = document.getElementById('notice-hackathon-location').value.trim();
+        titleVal = 'Hackathon';
+        descVal = `Upcoming Hackathon session.\n\nDate: ${hackDate || '(Enter Date)'}\nLocation: ${hackLoc || '(Enter Location)'}`;
+      } else if (type === 'placement_perspective') {
+        const placeDate = document.getElementById('notice-placement-date').value.trim();
+        const placeLoc = document.getElementById('notice-placement-location').value.trim();
+        titleVal = 'Placement Perspective';
+        descVal = `Placement Perspective session scheduled.\n\nDate: ${placeDate || '(Enter Date)'}\nLocation: ${placeLoc || '(Enter Location)'}`;
+      } else if (type === 'toppers') {
+        const sem = document.getElementById('notice-toppers-semester').value;
+        const list = document.getElementById('notice-toppers-list').value.trim();
+        titleVal = `Semester Toppers - ${sem}`;
+        descVal = list ? `Congratulations to the toppers of Semester ${sem}!\n\nToppers List:\n${list}` : `Congratulations to the toppers of Semester ${sem}!`;
+      } else if (type === 'call_for_team') {
+        const teamDrop = document.getElementById('notice-call-team-dropdown').value;
+        const teamCustom = document.getElementById('notice-call-team-custom').value.trim();
+        const teamDate = document.getElementById('notice-call-team-date').value.trim();
+        titleVal = teamDrop === 'custom' ? teamCustom : teamDrop;
+        descVal = `We are calling for team members/submissions.${teamDate ? `\n\nDeadline: ${teamDate}` : ''}`;
+      } else if (type === 'workshop') {
+        const wName = document.getElementById('notice-workshop-name').value.trim();
+        const mentor = document.getElementById('notice-workshop-mentor').value.trim();
+        const mode = document.getElementById('notice-workshop-mode').value;
+        const wDate = document.getElementById('notice-workshop-date').value.trim();
+        
+        const contactRows = document.querySelectorAll('#notice-workshop-contacts-list .link-row');
+        let contactsDesc = '';
+        contactRows.forEach(row => {
+          const cName = row.querySelector('.contact-name-input').value.trim();
+          const cMobile = row.querySelector('.contact-mobile-input').value.trim();
+          if (cName && cMobile) {
+            contactsDesc += `\n- ${cName} (${cMobile})`;
+          }
+        });
+
+        titleVal = wName ? `Workshop: ${wName}` : 'Upcoming Workshop';
+        descVal = `Join our upcoming workshop on '${wName || '(Workshop Name)'}' mentored by ${mentor || '(Mentor)'} (${mode} mode) scheduled on ${wDate || '(Date)'}.${contactsDesc ? `\n\nFor queries, contact:${contactsDesc}` : ''}`;
+      } else {
+        // general notice — do not overwrite
+        return;
+      }
+
+      if (!window.isNoticeTitleDirty) {
+        titleInput.value = titleVal;
+      }
+      if (!window.isNoticeDescDirty) {
+        descInput.value = descVal;
+      }
     }
 
     function addLinkInputRow(name = '', url = '') {
@@ -1218,20 +1320,22 @@
       const id = document.getElementById('notice-id').value;
       const type = document.getElementById('notice-type').value;
 
-      let payload = { type };
-      let semester = '';
-      let title = '';
-      let description = '';
-      let date = '';
-      let links = [];
-      let template_data = {};
+      const title = document.getElementById('notice-title').value.trim();
+      const date = document.getElementById('notice-date').value.trim();
+      const description = document.getElementById('notice-desc').value.trim();
 
-      const today = new Date();
-      const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-      const todayBadge = `${months[today.getMonth()]} ${today.getDate()}`;
+      if (!title || !date || !description) {
+        errorDiv.textContent = 'Title, Date Badge, and Description are required.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      let payload = { type, title, date, description };
+      let template_data = {};
+      let links = [];
 
       if (type === 'result') {
-        semester = document.getElementById('notice-semester').value;
+        const semester = document.getElementById('notice-semester').value;
         const instagram = document.getElementById('notice-instagram').value.trim();
 
         if (instagram && !isValidUrl(instagram)) {
@@ -1240,19 +1344,14 @@
           return;
         }
 
-        title = `${semester} Results Published`;
-        description = `The results for ${semester} have been published. Students are requested to sign in to the KTU Student Portal and download their scorecards.`;
-        date = todayBadge;
-
         links.push({ name: 'KTU Student Portal', url: 'https://app.ktu.edu.in/login.htm' });
         if (instagram) {
           links.push({ name: 'Announcements', url: instagram });
         }
-
         template_data = { instagram };
 
       } else if (type === 'series_exam') {
-        semester = document.getElementById('notice-series-semester').value;
+        const semester = document.getElementById('notice-series-semester').value;
         const pdfLink = document.getElementById('notice-series-drive-link').value.trim();
 
         if (!pdfLink) {
@@ -1266,49 +1365,35 @@
           return;
         }
 
-        title = `Series Exam Timetable - ${semester}`;
-        description = `The Series Exam Timetable for ${semester} has been published. Click the link below to access the PDF copy.`;
-        date = todayBadge;
         links.push({ name: 'Series Exam Timetable PDF', url: pdfLink });
-
         template_data = { pdf_link: pdfLink, semester };
 
       } else if (type === 'hackathon') {
-        title = document.getElementById('notice-hackathon-title').value.trim();
         const hackDate = document.getElementById('notice-hackathon-date').value.trim();
         const hackLocation = document.getElementById('notice-hackathon-location').value.trim();
-        const hackDesc = document.getElementById('notice-hackathon-desc').value.trim();
 
-        if (!title || !hackDate || !hackLocation) {
-          errorDiv.textContent = 'Title, Date, and Location are required.';
+        if (!hackDate || !hackLocation) {
+          errorDiv.textContent = 'Hackathon Date and Location are required.';
           errorDiv.style.display = 'block';
           return;
         }
 
-        description = hackDesc ? `${hackDesc}\n\nDate: ${hackDate}\nLocation: ${hackLocation}` : `Upcoming Hackathon session.\n\nDate: ${hackDate}\nLocation: ${hackLocation}`;
-        date = todayBadge;
-
-        template_data = { title, date: hackDate, location: hackLocation, description: hackDesc };
+        template_data = { date: hackDate, location: hackLocation };
 
       } else if (type === 'placement_perspective') {
-        title = document.getElementById('notice-placement-title').value.trim();
         const placeDate = document.getElementById('notice-placement-date').value.trim();
         const placeLocation = document.getElementById('notice-placement-location').value.trim();
-        const placeDesc = document.getElementById('notice-placement-desc').value.trim();
 
-        if (!title || !placeDate || !placeLocation) {
-          errorDiv.textContent = 'Title, Date, and Location are required.';
+        if (!placeDate || !placeLocation) {
+          errorDiv.textContent = 'Placement Perspective Date and Location are required.';
           errorDiv.style.display = 'block';
           return;
         }
 
-        description = placeDesc ? `${placeDesc}\n\nDate: ${placeDate}\nLocation: ${placeLocation}` : `Placement Perspective session scheduled.\n\nDate: ${placeDate}\nLocation: ${placeLocation}`;
-        date = todayBadge;
-
-        template_data = { title, date: placeDate, location: placeLocation, description: placeDesc };
+        template_data = { date: placeDate, location: placeLocation };
 
       } else if (type === 'toppers') {
-        semester = document.getElementById('notice-toppers-semester').value;
+        const semester = document.getElementById('notice-toppers-semester').value;
         const toppersList = document.getElementById('notice-toppers-list').value.trim();
         const toppersInsta = document.getElementById('notice-toppers-instagram').value.trim();
 
@@ -1318,46 +1403,27 @@
           return;
         }
 
-        title = `Semester Toppers - ${semester}`;
-        description = toppersList
-          ? `Congratulations to the toppers of Semester ${semester}!\n\nToppers List:\n${toppersList}`
-          : `Congratulations to the toppers of Semester ${semester}!`;
-        date = todayBadge;
-
         if (toppersInsta) {
           links.push({ name: 'Announcements', url: toppersInsta });
         }
-
         template_data = { semester, toppers_list: toppersList, instagram: toppersInsta };
 
       } else if (type === 'call_for_team') {
         const teamDrop = document.getElementById('notice-call-team-dropdown').value;
         const teamCustom = document.getElementById('notice-call-team-custom').value.trim();
-        const teamDesc = document.getElementById('notice-call-team-desc').value.trim();
         const teamDate = document.getElementById('notice-call-team-date').value.trim();
         const teamLink = document.getElementById('notice-call-team-link').value.trim();
 
-        title = teamDrop === 'custom' ? teamCustom : teamDrop;
-
-        if (!title || !teamDesc) {
-          errorDiv.textContent = 'Title and Description are required.';
-          errorDiv.style.display = 'block';
-          return;
-        }
         if (teamLink && !isValidUrl(teamLink)) {
           errorDiv.textContent = 'Please enter a valid URL for the link (starting with http:// or https://) or leave it blank.';
           errorDiv.style.display = 'block';
           return;
         }
 
-        description = teamDesc + (teamDate ? `\n\nDeadline: ${teamDate}` : '');
-        date = todayBadge;
-
         if (teamLink) {
           links.push({ name: 'Apply / Info', url: teamLink });
         }
-
-        template_data = { dropdown_title: teamDrop, custom_title: teamCustom, description: teamDesc, date: teamDate, link: teamLink };
+        template_data = { dropdown_title: teamDrop, custom_title: teamCustom, date: teamDate, link: teamLink };
 
       } else if (type === 'workshop') {
         const workshopName = document.getElementById('notice-workshop-name').value.trim();
@@ -1373,7 +1439,6 @@
 
         const contactRows = document.querySelectorAll('#notice-workshop-contacts-list .link-row');
         const contacts = [];
-        let contactsDesc = '';
         for (let row of contactRows) {
           const cName = row.querySelector('.contact-name-input').value.trim();
           const cMobile = row.querySelector('.contact-mobile-input').value.trim();
@@ -1384,53 +1449,36 @@
               return;
             }
             contacts.push({ name: cName, mobile: cMobile });
-            contactsDesc += `\n- ${cName} (${cMobile})`;
           }
         }
 
-        title = `Workshop: ${workshopName}`;
-        description = `Join our upcoming workshop on '${workshopName}' mentored by ${mentor} (${mode} mode) scheduled on ${workshopDate}.\n\nFor queries, contact:${contactsDesc || ' (No contacts listed)'}`;
-        date = todayBadge;
-
         template_data = { workshop_name: workshopName, mentor, mode, date: workshopDate, contacts };
+      }
 
-      } else {
-        // general
-        title = document.getElementById('notice-title').value.trim();
-        date = document.getElementById('notice-date').value.trim();
-        description = document.getElementById('notice-desc').value.trim();
+      // Collect manually added links from the dynamic list
+      const linkRows = document.querySelectorAll('#notice-links-list .link-row');
+      for (let row of linkRows) {
+        const name = row.querySelector('.link-name-input').value.trim();
+        const url = row.querySelector('.link-url-input').value.trim();
 
-        if (!title || !date || !description) {
-          errorDiv.textContent = 'Title, Date, and Description are required.';
-          errorDiv.style.display = 'block';
-          return;
-        }
-
-        const linkRows = document.querySelectorAll('#notice-links-list .link-row');
-        for (let row of linkRows) {
-          const name = row.querySelector('.link-name-input').value.trim();
-          const url = row.querySelector('.link-url-input').value.trim();
-
-          if (name || url) {
-            if (!name || !url) {
-              errorDiv.textContent = 'Both Link Name and URL are required if link is added.';
-              errorDiv.style.display = 'block';
-              return;
-            }
-            if (!isValidUrl(url)) {
-              errorDiv.textContent = `Please enter a valid URL for "${name}" (starting with http:// or https://).`;
-              errorDiv.style.display = 'block';
-              return;
-            }
+        if (name || url) {
+          if (!name || !url) {
+            errorDiv.textContent = 'Both Link Name and URL are required if link is added.';
+            errorDiv.style.display = 'block';
+            return;
+          }
+          if (!isValidUrl(url)) {
+            errorDiv.textContent = `Please enter a valid URL for "${name}" (starting with http:// or https://).`;
+            errorDiv.style.display = 'block';
+            return;
+          }
+          // Avoid duplicating template links
+          if (!links.some(l => l.url === url)) {
             links.push({ name, url });
           }
         }
       }
 
-      payload.title = title;
-      payload.semester = semester;
-      payload.description = description;
-      payload.date = date;
       payload.links = links;
       payload.template_data = template_data;
       payload.image = document.getElementById('notice-image-data').value || null;
@@ -1482,6 +1530,7 @@
       fetch('/api/events')
         .then(res => res.json())
         .then(events => {
+          window.loadedEvents = events;
           const tbody = document.getElementById('events-table-body');
           tbody.innerHTML = '';
           if (events.length === 0) {
@@ -1496,7 +1545,7 @@
               <td>${e.title}</td>
               <td>${e.venue}</td>
               <td style="text-align: right;">
-                <button class="btn-edit" onclick="editEvent(${JSON.stringify(e).replace(/"/g, '&quot;')})">Edit</button>
+                <button class="btn-edit" onclick="editEvent(${e.id})">Edit</button>
                 <button class="btn-delete" onclick="deleteEvent(${e.id})">Delete</button>
               </td>
             `;
@@ -1517,6 +1566,8 @@
       document.getElementById('event-template').value = 'standard';
       const regGroup = document.getElementById('event-reg-group');
       if (regGroup) regGroup.style.display = '';
+      const instaGroup = document.getElementById('event-insta-group');
+      if (instaGroup) instaGroup.style.display = '';
 
       if (eventObj) {
         titleElement.textContent = 'Edit Event Details';
@@ -1525,7 +1576,8 @@
         document.getElementById('event-date').value = eventObj.date;
         document.getElementById('event-time').value = eventObj.time;
         document.getElementById('event-venue').value = eventObj.venue;
-        document.getElementById('event-reg').value = eventObj.registration_link;
+        document.getElementById('event-reg').value = eventObj.registration_link || '';
+        document.getElementById('event-insta').value = eventObj.instagram_link || '';
         document.getElementById('event-desc').value = eventObj.description;
 
         // Restore poster preview — check if it's a Base64 string or a URL
@@ -1602,11 +1654,12 @@
       const urlPoster = document.getElementById('event-poster').value.trim();
       const poster_url = (uploadedPoster && !uploadedPoster.endsWith(window.location.href)) ? uploadedPoster : urlPoster;
       const registration_link = document.getElementById('event-reg').value.trim();
+      const instagram_link = document.getElementById('event-insta').value.trim();
       const description = document.getElementById('event-desc').value.trim();
 
       // VALIDATION
       if (!title || !date || !time || !venue || !poster_url || !description) {
-        errorDiv.textContent = 'All fields except registration link are required. Please upload an image or paste a URL.';
+        errorDiv.textContent = 'All fields except registration and instagram links are required. Please upload an image or paste a URL.';
         errorDiv.style.display = 'block';
         return;
       }
@@ -1620,8 +1673,13 @@
         errorDiv.style.display = 'block';
         return;
       }
+      if (instagram_link && !isValidUrl(instagram_link)) {
+        errorDiv.textContent = 'Please enter a valid Instagram URL (starting with http:// or https://) or leave it blank.';
+        errorDiv.style.display = 'block';
+        return;
+      }
 
-      const payload = { title, date, time, venue, poster_url, registration_link, description };
+      const payload = { title, date, time, venue, poster_url, registration_link, instagram_link, description };
       const method = id ? 'PUT' : 'POST';
       const endpoint = id ? `/api/admin/events/${id}` : '/api/admin/events';
 
@@ -1762,6 +1820,64 @@
       })
       .catch(err => alert(err.message));
     }
+
+    // ── Flatpickr date/time picker initialization ──────────────────────────
+    function initFlatpickr() {
+      // Standard date pickers (returns YYYY-MM-DD, shows "Month D, YYYY")
+      document.querySelectorAll('.flatpickr-date').forEach(el => {
+        if (el._flatpickr) return; // avoid double-init
+        flatpickr(el, {
+          dateFormat: 'Y-m-d',
+          altInput: true,
+          altFormat: 'F j, Y',
+          allowInput: true,
+          disableMobile: false,
+          onClose: function(selectedDates, dateStr, instance) {
+            // Trigger oninput for auto-generate hooks
+            instance.element.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+      });
+
+      // Notice date badge picker (stores "MMM D" format e.g. "JUL 4")
+      document.querySelectorAll('.flatpickr-notice-date').forEach(el => {
+        if (el._flatpickr) return;
+        flatpickr(el, {
+          dateFormat: 'M j',
+          altInput: true,
+          altFormat: 'F j, Y',
+          allowInput: true,
+          disableMobile: false,
+          onClose: function(selectedDates, dateStr, instance) {
+            // Format to uppercase e.g. "JUL 4"
+            if (selectedDates[0]) {
+              const d = selectedDates[0];
+              const month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+              const day = d.getDate();
+              instance.element.value = `${month} ${day}`;
+            }
+          }
+        });
+      });
+
+      // Time pickers (returns "HH:MM AM/PM")
+      document.querySelectorAll('.flatpickr-time').forEach(el => {
+        if (el._flatpickr) return;
+        flatpickr(el, {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: 'h:i K',
+          allowInput: true,
+          disableMobile: false,
+          time_24hr: false
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initFlatpickr();
+    });
   </script>
+
 </body>
 </html>

@@ -281,15 +281,15 @@ app.delete('/api/admin/notices/:id', requireAdmin, (req, res) => {
 
 // Add Event
 app.post('/api/admin/events', requireAdmin, (req, res) => {
-  const { title, date, time, venue, description, poster_url, registration_link } = req.body;
+  const { title, date, time, venue, description, poster_url, registration_link, instagram_link } = req.body;
 
   if (!title || !date || !time || !venue || !description || !poster_url) {
     return res.status(400).json({ error: 'Title, date, time, venue, description, and poster image URL are required' });
   }
 
   db.run(
-    'INSERT INTO events (title, date, time, venue, description, poster_url, registration_link) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [title, date, time, venue, description, poster_url, registration_link || ''],
+    'INSERT INTO events (title, date, time, venue, description, poster_url, registration_link, instagram_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || ''],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.status(201).json({ id: this.lastID, success: true });
@@ -299,15 +299,15 @@ app.post('/api/admin/events', requireAdmin, (req, res) => {
 
 // Edit Event
 app.put('/api/admin/events/:id', requireAdmin, (req, res) => {
-  const { title, date, time, venue, description, poster_url, registration_link } = req.body;
+  const { title, date, time, venue, description, poster_url, registration_link, instagram_link } = req.body;
 
   if (!title || !date || !time || !venue || !description || !poster_url) {
     return res.status(400).json({ error: 'Title, date, time, venue, description, and poster image URL are required' });
   }
 
   db.run(
-    'UPDATE events SET title = ?, date = ?, time = ?, venue = ?, description = ?, poster_url = ?, registration_link = ? WHERE id = ?',
-    [title, date, time, venue, description, poster_url, registration_link || '', req.params.id],
+    'UPDATE events SET title = ?, date = ?, time = ?, venue = ?, description = ?, poster_url = ?, registration_link = ?, instagram_link = ? WHERE id = ?',
+    [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || '', req.params.id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       if (this.changes === 0) return res.status(404).json({ error: 'Event not found' });

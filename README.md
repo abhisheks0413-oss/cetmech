@@ -9,9 +9,9 @@ Built with Node.js + Express + SQLite. Features a fully dynamic admin portal for
 ## Features
 
 - 📢 **Dynamic Notices & Announcements** — with image support, 6 built-in templates (Series Exam, Hackathon, Placement Perspective, Toppers, Call for Team, Workshop), and image lightbox zoom viewer
-- 📅 **Events & Achievements** — clickable event cards with detail modals, poster images, registration links
+- 📅 **Events & Achievements** — clickable event cards with detail modals, poster image zoom lightbox, registration & Instagram links
 - 📚 **Academic Resources** — semester-wise syllabus and resource links (8 semesters × 2 schemes)
-- 🔐 **Admin Portal** — password-protected dashboard at `/admin.html` for full CRUD on all content
+- 🔐 **Admin Portal** — password-protected dashboard at `/admin.html` for full CRUD on all content, with calendar/clock date-time pickers (Flatpickr)
 - 📱 **Responsive Design** — mobile-friendly layout across all pages
 
 ---
@@ -95,7 +95,7 @@ From the admin dashboard you can:
 ├── index.html         # Home page
 ├── about.html         # About the association
 ├── notices.html       # Announcements page
-├── students.html      # Events & Achievements page
+├── events.html      # Events & Achievements page
 ├── academics.html     # Academic Resources page
 ├── admin.html         # Admin portal (password protected)
 │

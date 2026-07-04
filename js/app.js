@@ -6,7 +6,7 @@ function navigateToTab(viewId) {
     'home-view': 'index.html',
     'about-view': 'about.html',
     'academics-view': 'academics.html',
-    'students-view': 'students.html',
+    'students-view': 'events.html',
     'notices-view': 'notices.html',
     'help-view': 'help.html'
   };
@@ -410,9 +410,13 @@ function openEventModal(event) {
   if (event.poster_url) {
     posterImg.src = event.poster_url;
     posterImg.alt = event.title;
+    posterImg.style.cursor = 'zoom-in';
+    posterImg.style.objectFit = 'contain';
+    posterImg.onclick = () => openNoticeLightbox(event.poster_url);
     posterWrap.style.display = 'block';
   } else {
     posterWrap.style.display = 'none';
+    posterImg.onclick = null;
   }
 
   const regLink = document.getElementById('event-modal-reg');
@@ -421,6 +425,16 @@ function openEventModal(event) {
     regLink.style.display = 'inline-block';
   } else {
     regLink.style.display = 'none';
+  }
+
+  const instaLink = document.getElementById('event-modal-insta');
+  if (instaLink) {
+    if (event.instagram_link) {
+      instaLink.href = event.instagram_link;
+      instaLink.style.display = 'inline-block';
+    } else {
+      instaLink.style.display = 'none';
+    }
   }
 
   modal.style.display = 'block';

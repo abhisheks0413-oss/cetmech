@@ -38,9 +38,15 @@ function initDatabase() {
         venue TEXT NOT NULL,
         description TEXT NOT NULL,
         poster_url TEXT NOT NULL,
-        registration_link TEXT
+        registration_link TEXT,
+        instagram_link TEXT
       )
     `);
+
+    // Add instagram_link to events if missing (for existing databases)
+    db.run('ALTER TABLE events ADD COLUMN instagram_link TEXT', (err) => {
+      // Ignore error — column already exists
+    });
 
     // 3. Academics Configurations Table
     db.run(`
