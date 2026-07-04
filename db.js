@@ -19,10 +19,15 @@ function getPool() {
       throw new Error('DATABASE_URL environment variable is required');
     }
 
+    const databaseUrl = new URL(process.env.DATABASE_URL);
+    const sslMode = databaseUrl.searchParams.get('ssl-mode') || databaseUrl.searchParams.get('sslmode');
+    const sslEnabled = process.env.DATABASE_SSL === 'true' || /^(required|require|verify_ca|verify_identity)$/i.test(sslMode || '');
+
     pool = mysql.createPool({
       uri: process.env.DATABASE_URL,
       connectionLimit: 5,
-      timezone: 'Z'
+      timezone: 'Z',
+      ...(sslEnabled ? { ssl: { rejectUnauthorized: false } } : {})
     });
   }
 

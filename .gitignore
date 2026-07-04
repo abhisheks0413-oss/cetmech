@@ -11,6 +11,7 @@ yarn-error.log*
 # =============git ===========
 # Never commit real credentials
 .env
+.env.local
 
 # ==========n==============
 # Database

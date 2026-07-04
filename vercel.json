@@ -1,19 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.js"
-    }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index.js" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/academics", "destination": "/academics.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/events", "destination": "/events.html" },
+    { "source": "/help", "destination": "/help.html" },
+    { "source": "/notices", "destination": "/notices.html" }
   ]
 }

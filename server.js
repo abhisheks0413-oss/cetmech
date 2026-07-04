@@ -75,16 +75,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get(/^\/(css|js|images)\//, (req, res, next) => {
-  const relativePath = req.path.replace(/^\//, '');
-  const absolutePath = path.resolve(__dirname, relativePath);
-
-  if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile()) {
-    return res.sendFile(absolutePath);
-  }
-
-  next();
-});
+// Serve all static frontend files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/notices', async (req, res) => {
   try {
@@ -353,9 +345,9 @@ app.get('*', (req, res) => {
 
   const cleanPath = req.path === '/' ? 'index.html' : req.path.replace(/^\/+/, '');
   const allowedHtmlFiles = new Set(['index.html', 'about.html', 'academics.html', 'events.html', 'help.html', 'notices.html', 'admin.html']);
-  const directFile = path.join(__dirname, cleanPath);
+  const directFile = path.join(__dirname, 'public', cleanPath);
   const htmlFileName = `${cleanPath}.html`;
-  const htmlFile = path.join(__dirname, htmlFileName);
+  const htmlFile = path.join(__dirname, 'public', htmlFileName);
 
   if (allowedHtmlFiles.has(cleanPath) && fs.existsSync(directFile) && fs.statSync(directFile).isFile()) {
     return res.sendFile(directFile);
@@ -369,7 +361,7 @@ app.get('*', (req, res) => {
     return res.status(404).send('Not found');
   }
 
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 if (require.main === module) {
