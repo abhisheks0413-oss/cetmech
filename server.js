@@ -1,369 +1,382 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const db = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Session Setup
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret_key_backup_2026',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 24 hours
+function normalizeLinks(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      return [];
+    }
   }
-}));
+  return [];
+}
 
-// Serve static frontend files from the current directory
-app.use(express.static(__dirname));
+function normalizeTemplateData(value) {
+  if (value && typeof value === 'object') return value;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return null;
+    }
+  }
+  return null;
+}
 
-// Auth Middleware helper
 function requireAdmin(req, res, next) {
-  if (req.session && req.session.isAdmin) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const cookies = Object.fromEntries(
+    (req.headers.cookie || '')
+      .split(';')
+      .map(part => part.trim())
+      .filter(Boolean)
+      .map(cookie => {
+        const index = cookie.indexOf('=');
+        if (index === -1) return null;
+        return [cookie.slice(0, index), cookie.slice(index + 1)];
+      })
+      .filter(Boolean)
+  );
+  const sessionToken = token || cookies.admin_token;
+
+  if (!sessionToken) {
+    return res.status(401).json({ error: 'Unauthorized: Admin access required' });
+  }
+
+  try {
+    const payload = jwt.verify(sessionToken, process.env.JWT_SECRET || process.env.SESSION_SECRET || 'dev-jwt-secret-change-me');
+    req.admin = payload;
     next();
-  } else {
+  } catch (error) {
     res.status(401).json({ error: 'Unauthorized: Admin access required' });
   }
 }
 
-// ==========================================
-// 1. PUBLIC API ROUTES
-// ==========================================
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    db.ensureSchema().catch(() => {}).then(() => next());
+    return;
+  }
+  next();
+});
 
-// Get all notices
-app.get('/api/notices', (req, res) => {
-  db.all('SELECT * FROM notices ORDER BY id DESC', [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    // Parse links JSON string
-    const notices = rows.map(r => ({
-      ...r,
-      links: JSON.parse(r.links || '[]'),
-      template_data: r.template_data ? JSON.parse(r.template_data) : null
+app.get(/^\/(css|js|images)\//, (req, res, next) => {
+  const relativePath = req.path.replace(/^\//, '');
+  const absolutePath = path.resolve(__dirname, relativePath);
+
+  if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile()) {
+    return res.sendFile(absolutePath);
+  }
+
+  next();
+});
+
+app.get('/api/notices', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM notices ORDER BY id DESC');
+    const notices = result.rows.map(row => ({
+      ...row,
+      links: normalizeLinks(row.links),
+      template_data: normalizeTemplateData(row.template_data)
     }));
     res.json(notices);
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Get single notice
-app.get('/api/notices/:id', (req, res) => {
-  db.get('SELECT * FROM notices WHERE id = ?', [req.params.id], (err, row) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (!row) {
-      return res.status(404).json({ error: 'Notice not found' });
-    }
-    row.links = JSON.parse(row.links || '[]');
-    row.template_data = row.template_data ? JSON.parse(row.template_data) : null;
-    res.json(row);
-  });
+app.get('/api/notices/:id', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM notices WHERE id = $1', [req.params.id]);
+    const row = result.rows[0];
+    if (!row) return res.status(404).json({ error: 'Notice not found' });
+
+    res.json({
+      ...row,
+      links: normalizeLinks(row.links),
+      template_data: normalizeTemplateData(row.template_data)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Get all events
-app.get('/api/events', (req, res) => {
-  db.all('SELECT * FROM events ORDER BY date DESC, time DESC', [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(rows);
-  });
+app.get('/api/events', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM events ORDER BY date DESC, time DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Get Academics Drive link configuration
-app.get('/api/academics/link', (req, res) => {
+app.get('/api/academics/link', async (req, res) => {
   const { type, scheme, semester } = req.query;
   if (!type || !scheme || !semester) {
     return res.status(400).json({ error: 'Missing parameters: type, scheme, and semester are required' });
   }
 
-  db.get(
-    'SELECT drive_link FROM academics WHERE type = ? AND scheme = ? AND semester = ?',
-    [type.toLowerCase(), scheme, semester],
-    (err, row) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (!row) {
-        return res.status(404).json({ error: 'Google Drive configuration not found' });
-      }
-      if (!row.drive_link) {
-        return res.status(404).json({ error: 'Google Drive link not configured yet for this selection' });
-      }
-      res.json({ drive_link: row.drive_link });
-    }
-  );
+  try {
+    const result = await db.query('SELECT drive_link FROM academics WHERE type = $1 AND scheme = $2 AND semester = $3', [String(type).toLowerCase(), String(scheme), String(semester)]);
+    const row = result.rows[0];
+    if (!row) return res.status(404).json({ error: 'Google Drive configuration not found' });
+    if (!row.drive_link) return res.status(404).json({ error: 'Google Drive link not configured yet for this selection' });
+    res.json({ drive_link: row.drive_link });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// ==========================================
-// 2. ADMIN AUTHENTICATION API ROUTES
-// ==========================================
-
-// Login API
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
   const envUser = process.env.ADMIN_USERNAME || 'admin';
   const envPass = process.env.ADMIN_PASSWORD || 'admin123';
 
   if (username === envUser && password === envPass) {
-    req.session.isAdmin = true;
-    res.json({ success: true, message: 'Logged in successfully' });
-  } else {
-    res.status(401).json({ error: 'Invalid username or password' });
+    const token = jwt.sign({ isAdmin: true }, process.env.JWT_SECRET || process.env.SESSION_SECRET || 'dev-jwt-secret-change-me', { expiresIn: '24h' });
+    res.setHeader('Set-Cookie', `admin_token=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`);
+    return res.json({ success: true, message: 'Logged in successfully' });
   }
+
+  res.status(401).json({ error: 'Invalid username or password' });
 });
 
-// Logout API
 app.post('/api/admin/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to log out' });
-    }
-    res.json({ success: true, message: 'Logged out successfully' });
-  });
+  res.setHeader('Set-Cookie', `admin_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`);
+  res.json({ success: true, message: 'Logged out successfully' });
 });
 
-// Check auth status API
 app.get('/api/admin/check', (req, res) => {
-  if (req.session && req.session.isAdmin) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const cookies = Object.fromEntries(
+    (req.headers.cookie || '')
+      .split(';')
+      .map(part => part.trim())
+      .filter(Boolean)
+      .map(cookie => {
+        const index = cookie.indexOf('=');
+        if (index === -1) return null;
+        return [cookie.slice(0, index), cookie.slice(index + 1)];
+      })
+      .filter(Boolean)
+  );
+  const sessionToken = token || cookies.admin_token;
+
+  if (!sessionToken) return res.json({ authenticated: false });
+
+  try {
+    jwt.verify(sessionToken, process.env.JWT_SECRET || process.env.SESSION_SECRET || 'dev-jwt-secret-change-me');
     res.json({ authenticated: true });
-  } else {
+  } catch (error) {
     res.json({ authenticated: false });
   }
 });
 
-// ==========================================
-// 3. PROTECTED ADMIN CRUD API ROUTES
-// ==========================================
+app.get('/api/admin/summary', requireAdmin, async (req, res) => {
+  try {
+    const noticesResult = await db.query('SELECT COUNT(*) AS count FROM notices');
+    const eventsResult = await db.query('SELECT COUNT(*) AS count FROM events');
+    const academicsResult = await db.query("SELECT COUNT(*) AS count FROM academics WHERE drive_link <> ''");
 
-// Get Dashboard Summary
-app.get('/api/admin/summary', requireAdmin, (req, res) => {
-  db.get('SELECT COUNT(*) as count FROM notices', [], (err, noticesRow) => {
-    if (err) return res.status(500).json({ error: err.message });
-
-    db.get('SELECT COUNT(*) as count FROM events', [], (err, eventsRow) => {
-      if (err) return res.status(500).json({ error: err.message });
-
-      // Count configured (non-blank) academics links
-      db.get("SELECT COUNT(*) as count FROM academics WHERE drive_link != ''", [], (err, acadRow) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        res.json({
-          noticesCount: noticesRow.count,
-          eventsCount: eventsRow.count,
-          customAcademicsCount: acadRow.count
-        });
-      });
+    res.json({
+      noticesCount: noticesResult.rows[0].count,
+      eventsCount: eventsResult.rows[0].count,
+      customAcademicsCount: academicsResult.rows[0].count
     });
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// NOTICES CRUD
-
-// Add Notice
-app.post('/api/admin/notices', requireAdmin, (req, res) => {
+app.post('/api/admin/notices', requireAdmin, async (req, res) => {
   const { title, type, semester, description, date, links, image, template_data } = req.body;
 
   if (!title || !type || !description || !date) {
     return res.status(400).json({ error: 'Title, type, description, and date are required' });
   }
-  
-  // Note: semester remains required for result/exam/toppers templates where admin selects it
+
   const needsSemester = ['result', 'series_exam', 'toppers'].includes(type);
   if (needsSemester && !semester) {
     return res.status(400).json({ error: 'Semester is required for this template type' });
   }
 
-  // Links validation
-  let linksStr = '[]';
-  if (links) {
-    try {
-      const parsed = Array.isArray(links) ? links : JSON.parse(links);
-      linksStr = JSON.stringify(parsed);
-    } catch (e) {
-      return res.status(400).json({ error: 'Invalid links JSON format' });
-    }
-  }
-
-  // Check for duplicate title
-  db.get('SELECT id FROM notices WHERE title = ?', [title], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (row) {
+  try {
+    const duplicateResult = await db.query('SELECT id FROM notices WHERE title = $1', [title]);
+    if (duplicateResult.rowCount > 0) {
       return res.status(400).json({ error: 'A notice with this title already exists' });
     }
 
-    db.run(
-      'INSERT INTO notices (title, type, semester, description, date, links, image, template_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [title, type, semester || '', description, date, linksStr, image || null, template_data ? JSON.stringify(template_data) : null],
-      function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id: this.lastID, success: true });
-      }
+    const insertResult = await db.query(
+      'INSERT INTO notices (title, type, semester, description, date, links, image, template_data) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [title, type, semester || '', description, date, JSON.stringify(normalizeLinks(links)), image || null, JSON.stringify(normalizeTemplateData(template_data))]
     );
-  });
+
+    res.status(201).json({ id: insertResult.insertId, success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Edit Notice
-app.put('/api/admin/notices/:id', requireAdmin, (req, res) => {
+app.put('/api/admin/notices/:id', requireAdmin, async (req, res) => {
   const { title, type, semester, description, date, links, image, template_data } = req.body;
 
   if (!title || !type || !description || !date) {
     return res.status(400).json({ error: 'Title, type, description, and date are required' });
   }
-  
+
   const needsSemester = ['result', 'series_exam', 'toppers'].includes(type);
   if (needsSemester && !semester) {
     return res.status(400).json({ error: 'Semester is required for this template type' });
   }
 
-  let linksStr = '[]';
-  if (links) {
-    try {
-      const parsed = Array.isArray(links) ? links : JSON.parse(links);
-      linksStr = JSON.stringify(parsed);
-    } catch (e) {
-      return res.status(400).json({ error: 'Invalid links JSON format' });
-    }
-  }
-
-  // Check for duplicate title excluding current id
-  db.get('SELECT id FROM notices WHERE title = ? AND id != ?', [title, req.params.id], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (row) {
+  try {
+    const duplicateResult = await db.query('SELECT id FROM notices WHERE title = $1 AND id != $2', [title, req.params.id]);
+    if (duplicateResult.rowCount > 0) {
       return res.status(400).json({ error: 'Another notice with this title already exists' });
     }
 
-    // If no new image is provided, keep the existing one
-    const updateFn = (imageVal) => {
-      db.run(
-        'UPDATE notices SET title = ?, type = ?, semester = ?, description = ?, date = ?, links = ?, image = ?, template_data = ? WHERE id = ?',
-        [title, type, semester || '', description, date, linksStr, imageVal, template_data ? JSON.stringify(template_data) : null, req.params.id],
-        function (err) {
-          if (err) return res.status(500).json({ error: err.message });
-          if (this.changes === 0) return res.status(404).json({ error: 'Notice not found' });
-          res.json({ success: true });
-        }
-      );
-    };
-
-    if (image !== undefined) {
-      updateFn(image || null);
-    } else {
-      // Preserve existing image
-      db.get('SELECT image FROM notices WHERE id = ?', [req.params.id], (err, existing) => {
-        if (err) return res.status(500).json({ error: err.message });
-        updateFn(existing ? existing.image : null);
-      });
+    let imageValue = image;
+    if (image === undefined) {
+      const existingResult = await db.query('SELECT image FROM notices WHERE id = $1', [req.params.id]);
+      imageValue = existingResult.rows[0]?.image ?? null;
     }
-  });
-});
 
-// Delete Notice
-app.delete('/api/admin/notices/:id', requireAdmin, (req, res) => {
-  db.run('DELETE FROM notices WHERE id = ?', [req.params.id], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: 'Notice not found' });
+    const updateResult = await db.query(
+      'UPDATE notices SET title = $1, type = $2, semester = $3, description = $4, date = $5, links = $6, image = $7, template_data = $8 WHERE id = $9',
+      [title, type, semester || '', description, date, JSON.stringify(normalizeLinks(links)), imageValue || null, JSON.stringify(normalizeTemplateData(template_data)), req.params.id]
+    );
+
+    if (updateResult.rowCount === 0) return res.status(404).json({ error: 'Notice not found' });
     res.json({ success: true });
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// EVENTS CRUD
+app.delete('/api/admin/notices/:id', requireAdmin, async (req, res) => {
+  try {
+    const deleteResult = await db.query('DELETE FROM notices WHERE id = $1', [req.params.id]);
+    if (deleteResult.rowCount === 0) return res.status(404).json({ error: 'Notice not found' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-// Add Event
-app.post('/api/admin/events', requireAdmin, (req, res) => {
+app.post('/api/admin/events', requireAdmin, async (req, res) => {
   const { title, date, time, venue, description, poster_url, registration_link, instagram_link } = req.body;
-
   if (!title || !date || !time || !venue || !description || !poster_url) {
     return res.status(400).json({ error: 'Title, date, time, venue, description, and poster image URL are required' });
   }
 
-  db.run(
-    'INSERT INTO events (title, date, time, venue, description, poster_url, registration_link, instagram_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || ''],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ id: this.lastID, success: true });
-    }
-  );
+  try {
+    const insertResult = await db.query(
+      'INSERT INTO events (title, date, time, venue, description, poster_url, registration_link, instagram_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || '']
+    );
+    res.status(201).json({ id: insertResult.insertId, success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Edit Event
-app.put('/api/admin/events/:id', requireAdmin, (req, res) => {
+app.put('/api/admin/events/:id', requireAdmin, async (req, res) => {
   const { title, date, time, venue, description, poster_url, registration_link, instagram_link } = req.body;
-
   if (!title || !date || !time || !venue || !description || !poster_url) {
     return res.status(400).json({ error: 'Title, date, time, venue, description, and poster image URL are required' });
   }
 
-  db.run(
-    'UPDATE events SET title = ?, date = ?, time = ?, venue = ?, description = ?, poster_url = ?, registration_link = ?, instagram_link = ? WHERE id = ?',
-    [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || '', req.params.id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) return res.status(404).json({ error: 'Event not found' });
-      res.json({ success: true });
-    }
-  );
-});
-
-// Delete Event
-app.delete('/api/admin/events/:id', requireAdmin, (req, res) => {
-  db.run('DELETE FROM events WHERE id = ?', [req.params.id], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: 'Event not found' });
+  try {
+    const updateResult = await db.query(
+      'UPDATE events SET title = $1, date = $2, time = $3, venue = $4, description = $5, poster_url = $6, registration_link = $7, instagram_link = $8 WHERE id = $9',
+      [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || '', req.params.id]
+    );
+    if (updateResult.rowCount === 0) return res.status(404).json({ error: 'Event not found' });
     res.json({ success: true });
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// ACADEMICS CONFIG CRUD
-
-// Get all academic configurations
-app.get('/api/admin/academics', requireAdmin, (req, res) => {
-  db.all('SELECT * FROM academics ORDER BY type, scheme, semester', [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+app.delete('/api/admin/events/:id', requireAdmin, async (req, res) => {
+  try {
+    const deleteResult = await db.query('DELETE FROM events WHERE id = $1', [req.params.id]);
+    if (deleteResult.rowCount === 0) return res.status(404).json({ error: 'Event not found' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Update an academic configuration link
-app.put('/api/admin/academics/:id', requireAdmin, (req, res) => {
+app.get('/api/admin/academics', requireAdmin, async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM academics ORDER BY type, scheme, semester');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/academics/:id', requireAdmin, async (req, res) => {
   const { drive_link } = req.body;
   if (!drive_link) {
     return res.status(400).json({ error: 'Google Drive link is required' });
   }
 
-  db.run(
-    'UPDATE academics SET drive_link = ? WHERE id = ?',
-    [drive_link, req.params.id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) return res.status(404).json({ error: 'Configuration not found' });
-      res.json({ success: true });
-    }
-  );
+  try {
+    const updateResult = await db.query('UPDATE academics SET drive_link = $1 WHERE id = $2', [drive_link, req.params.id]);
+    if (updateResult.rowCount === 0) return res.status(404).json({ error: 'Configuration not found' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Catch-all route to serve index.html for any undefined non-API paths (helps support dynamic SPA-like behaviors if needed, though Option 1 is multi-page)
-app.get('*', (req, res, next) => {
-  // If it's an API request that didn't match, let it 404
-  if (req.url.startsWith('/api')) {
-    return next();
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'Not found' });
+
+  const cleanPath = req.path === '/' ? 'index.html' : req.path.replace(/^\/+/, '');
+  const allowedHtmlFiles = new Set(['index.html', 'about.html', 'academics.html', 'events.html', 'help.html', 'notices.html', 'admin.html']);
+  const directFile = path.join(__dirname, cleanPath);
+  const htmlFileName = `${cleanPath}.html`;
+  const htmlFile = path.join(__dirname, htmlFileName);
+
+  if (allowedHtmlFiles.has(cleanPath) && fs.existsSync(directFile) && fs.statSync(directFile).isFile()) {
+    return res.sendFile(directFile);
   }
-  // Otherwise serve the file requested or fallback to index.html
+
+  if (allowedHtmlFiles.has(htmlFileName) && fs.existsSync(htmlFile) && fs.statSync(htmlFile).isFile()) {
+    return res.sendFile(htmlFile);
+  }
+
+  if (cleanPath.includes('.')) {
+    return res.status(404).send('Not found');
+  }
+
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Mechanical Association Server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
+
+module.exports = app;

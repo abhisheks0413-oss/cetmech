@@ -884,19 +884,19 @@
 
     // Page Load Checks
     document.addEventListener('DOMContentLoaded', () => {
-      checkAuthStatus();
+      resetAdminSession();
     });
 
-    function checkAuthStatus() {
-      fetch('/api/admin/check')
-        .then(res => res.json())
-        .then(data => {
-          if (data.authenticated) {
-            showDashboardLayout();
-          } else {
-            showLoginLayout();
-          }
-        })
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) resetAdminSession();
+    });
+
+    function resetAdminSession() {
+      showLoginLayout();
+      fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      })
         .catch(() => showLoginLayout());
     }
 
@@ -938,6 +938,7 @@
 
       fetch('/api/admin/login', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       })
@@ -957,7 +958,10 @@
     }
 
     function handleLogout() {
-      fetch('/api/admin/logout', { method: 'POST' })
+      fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      })
         .then(() => showLoginLayout())
         .catch(() => showLoginLayout());
     }

@@ -1,0 +1,1 @@
+console.log('Site assets are being served from the public folder.');

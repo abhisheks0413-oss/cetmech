@@ -1,29 +1,33 @@
 {
   "name": "mechanical-association-website",
-  "version": "1.0.0",
-  "description": "Official website for the Mechanical Engineering Association — College of Engineering Trivandrum. Features dynamic notices, events, academic resources, and a password-protected admin portal.",
-  "main": "server.js",
+  "version": "2.0.0",
+  "description": "Official website for the Mechanical Engineering Association — College of Engineering Trivandrum with Vercel-compatible serverless APIs and PostgreSQL support.",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node server.js",
     "dev": "node server.js",
-    "seed": "node db.js --seed"
+    "start": "node server.js",
+    "vercel:dev": "npx vercel dev",
+    "seed": "node -e \"require('./db').seedDatabase().then(() => console.log('Database initialized')).catch(err => { console.error(err); process.exit(1); })\""
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "22.x"
   },
   "dependencies": {
+    "cookie": "^0.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-session": "^1.18.0",
-    "sqlite3": "^6.0.1"
+    "jsonwebtoken": "^9.0.1",
+    "mysql2": "^3.12.0"
   },
   "keywords": [
     "mechanical-engineering",
     "college-website",
     "association",
     "cet",
-    "trivandrum"
+    "trivandrum",
+    "vercel",
+    "postgresql"
   ],
   "license": "ISC"
 }

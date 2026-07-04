@@ -35,3 +35,6 @@ desktop.ini
 # ========================
 logs/
 *.log
+
+.vercel
+.env*

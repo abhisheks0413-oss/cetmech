@@ -2,7 +2,7 @@
 
 Official website for the **Mechanical Engineering Association**, College of Engineering Trivandrum (CET).
 
-Built with Node.js + Express + SQLite. Features a fully dynamic admin portal for managing notices, events, and academic resources — no CMS required.
+Built with Node.js + Express + MySQL. Features a fully dynamic admin portal for managing notices, events, and academic resources. A bundled SQLite database is used automatically for local development when `DATABASE_URL` is not set.
 
 ---
 
@@ -22,8 +22,8 @@ Built with Node.js + Express + SQLite. Features a fully dynamic admin portal for
 |-------|-----------|
 | Runtime | Node.js ≥ 18 |
 | Server | Express.js |
-| Database | SQLite3 (via `sqlite3` npm package) |
-| Sessions | `express-session` |
+| Database | MySQL (via `mysql2`) |
+| Sessions | JWT-based auth via `jsonwebtoken` |
 | Frontend | Vanilla HTML, CSS, JavaScript |
 
 ---
@@ -47,9 +47,9 @@ npm install
 
 # 3. Set up environment variables
 cp .env.example .env
-# Edit .env and set your own SESSION_SECRET and ADMIN_PASSWORD
+# Edit .env and set your DATABASE_URL, JWT_SECRET, and ADMIN credentials
 
-# 4. Start the server
+# 4. Start the server locally
 npm start
 ```
 
@@ -63,8 +63,9 @@ Copy `.env.example` to `.env` and configure:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | Port the server listens on | `3000` |
-| `SESSION_SECRET` | Secret for signing session cookies — **change this in production** | — |
+| `DATABASE_URL` | MySQL connection string from your hosting provider | optional locally |
+| `JWT_SECRET` | Secret for signing admin JWTs — **change this in production** | — |
+| `SESSION_SECRET` | Optional fallback for compatibility | — |
 | `ADMIN_USERNAME` | Admin panel username | `admin` |
 | `ADMIN_PASSWORD` | Admin panel password — **change this in production** | — |
 
@@ -87,7 +88,10 @@ From the admin dashboard you can:
 
 ```
 ├── server.js          # Express server + all API routes
-├── db.js              # SQLite schema setup and seeding
+├── db.js              # MySQL connection + local SQLite fallback
+├── api/index.js       # Vercel serverless entry point
+├── vercel.json        # Vercel routing config
+├── migrations/        # SQL schema and seed migrations
 ├── package.json
 ├── .env.example       # Environment variable template
 ├── .gitignore
@@ -109,14 +113,10 @@ From the admin dashboard you can:
 
 ## Deployment Notes
 
-- The SQLite `database.db` file is **not tracked in git** — it is created automatically when the server starts for the first time.
-- For production deployments, use a process manager like [PM2](https://pm2.keymetrics.io/) to keep the server running:
-  ```bash
-  npm install -g pm2
-  pm2 start server.js --name "mech-association"
-  pm2 save
-  ```
-- For cloud hosting, platforms like **Railway**, **Render**, or a VPS with Nginx reverse proxy work well with this stack.
+- This project is now compatible with **Vercel** and **MySQL**.
+- Deploy by connecting the repository to Vercel and setting the environment variables above.
+- For local development, `npm start` runs the Express server directly. If `DATABASE_URL` is not set, the bundled `database.db` file is used.
+- For Vercel-style local testing, install/use the Vercel CLI and run `npm run vercel:dev`.
 
 ---
 

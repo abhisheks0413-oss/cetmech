@@ -57,10 +57,9 @@ function openNoticeModal(notice) {
   const content = document.getElementById('notice-detail-content');
   if (!modal || !content) return;
 
-  // Title / date / description
+  // Title / description
   document.getElementById('notice-modal-title').textContent = notice.title;
   document.getElementById('notice-modal-body').textContent = notice.description;
-  document.getElementById('notice-modal-date').textContent = notice.date;
 
   // Badge & result styling
   const badge = document.getElementById('notice-modal-badge');
@@ -260,7 +259,6 @@ function renderNoticesPage(notices) {
     details.className = 'notice-split-details';
     details.innerHTML = `
       <div class="notice-split-meta">
-        <span class="notice-split-date">${notice.date}</span>
         <span class="notice-split-badge ${isResult ? 'result' : ''}">${isResult ? 'Result Published' : 'Announcement'}</span>
       </div>
       <div class="notice-split-title">${notice.title}</div>
@@ -303,7 +301,6 @@ function renderHomepageCarousel(notices) {
     slide.innerHTML = `
       <div class="notice-card" style="cursor:pointer;">
         <div class="notice-card-header">
-          <span class="notice-date">${notice.date}</span>
           <span class="notice-badge" style="${isResult ? 'background:rgba(0,180,216,0.15);color:var(--glow-cyan);font-weight:700;' : ''}">${badgeText}</span>
         </div>
         <div class="notice-card-content">
