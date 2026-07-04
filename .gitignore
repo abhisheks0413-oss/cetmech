@@ -8,11 +8,11 @@ yarn-error.log*
 
 # ========================
 # Environment / Secrets
-# ========================
+# =============git ===========
 # Never commit real credentials
 .env
 
-# ========================
+# ==========n==============
 # Database
 # ========================
 # SQLite database file — generated at runtime, not tracked in git
