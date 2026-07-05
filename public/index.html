@@ -6,7 +6,7 @@
   <title>Home | Mechanical Engineering | College of Engineering Trivandrum</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body>  
 
   <header class="topbar">
     <div class="brand">
@@ -25,13 +25,15 @@
 
   <main>
     <div id="home-view" class="tab-view active-view" style="padding-top: 70px;">
-      <div class="hero-container">
+      <div class="hero-container parallax-section">
         <canvas id="mechanical-canvas"></canvas>
+        <div class="parallax-layer bg-orbs"></div>
+        <div class="parallax-layer mesh"></div>
         
-        <div class="hero">
+        <div class="hero parallax-content">
           <div class="hero-inner">
             <span class="eyebrow">College of Engineering Trivandrum</span>
-            <h1>Mechanical Engineering</h1>
+            <h1 class="masked-text" data-text="Mechanical Engineering">Mechanical Engineering</h1>
             <p>Upholding a legacy of premier technical excellence. We blend classical mechanical systems with advanced dynamic research in robotic engineering, materials validation, and state-of-the-art computational mechanics infrastructure.</p>
           </div>
         </div>
@@ -71,7 +73,7 @@
           </div>
 
           <div class="center-btn-wrapper">
-            <button class="center-action-btn" onclick="window.location.href='notices.html'">
+            <button class="iso-button" onclick="window.location.href='notices.html'">
               View all notices &rarr;
             </button>
           </div>
@@ -84,20 +86,21 @@
           <h2 class="shortcut-section-title">Academics</h2>
           <p class="shortcut-section-subtitle">Notes, question papers &amp; syllabus — all in one place</p>
           
-          <div class="dark-shortcut-card" onclick="window.location.href='academics.html'">
-            <div class="shortcut-meta-block">
+          <div class="dark-shortcut-card liquid-glass hyper" onclick="window.location.href='academics.html'">
+            <div class="liquid-glow-layer"></div>
+            <div class="shortcut-meta-block" style="position: relative; z-index: 1;">
               <span class="shortcut-pill-accent">RESOURCES</span>
               <span class="shortcut-pill-accent">SEM 1–8</span>
             </div>
-            <div class="shortcut-main-content">
+            <div class="shortcut-main-content" style="position: relative; z-index: 1;">
               <h3 class="shortcut-main-title">RESOURCES</h3>
               <p class="shortcut-main-description">previous year semester question papers and material</p>
             </div>
-            <div class="shortcut-action-chevron">❯</div>
+            <div class="shortcut-action-chevron" style="position: relative; z-index: 1;">❯</div>
           </div>
 
           <div class="center-btn-wrapper">
-            <button class="center-action-btn" onclick="window.location.href='academics.html'">
+            <button class="iso-button" onclick="window.location.href='academics.html'">
               Explore resources &rarr;
             </button>
           </div>
@@ -111,15 +114,16 @@
           <p class="shortcut-section-subtitle">Highlights from our workshops, technical symposiums, and community projects</p>
           
           <!-- Interactive Card -->
-          <div class="dark-shortcut-card" onclick="window.location.href='events.html'">
-            <div class="shortcut-meta-block">
+          <div class="dark-shortcut-card liquid-glass hyper" onclick="window.location.href='events.html'">
+            <div class="liquid-glow-layer"></div>
+            <div class="shortcut-meta-block" style="position: relative; z-index: 1;">
               <span class="shortcut-pill-accent">EVENTS</span>
             </div>
-            <div class="shortcut-main-content">
+            <div class="shortcut-main-content" style="position: relative; z-index: 1;">
               <h3 class="shortcut-main-title">EVENTS</h3>
               <p class="shortcut-main-description">Discover innovations, project launches, and technical milestones from the Mechanical branch.</p>
             </div>
-            <div class="shortcut-action-chevron">❯</div>
+            <div class="shortcut-action-chevron" style="position: relative; z-index: 1;">❯</div>
           </div>
 
           <!-- 4 Section Department Event Photo Grid -->
@@ -128,7 +132,7 @@
           </div>
 
           <div class="center-btn-wrapper">
-            <button class="center-action-btn" onclick="window.location.href='events.html'">
+            <button class="iso-button" onclick="window.location.href='events.html'">
               Explore events &rarr;
             </button>
           </div>
@@ -141,20 +145,21 @@
           <h2 class="shortcut-section-title">Support Desk</h2>
           <p class="shortcut-section-subtitle">Reach out for academic assistance, counseling, or laboratory support frameworks</p>
           
-          <div class="dark-shortcut-card" onclick="window.location.href='help.html'">
-            <div class="shortcut-meta-block">
+          <div class="dark-shortcut-card liquid-glass hyper" onclick="window.location.href='help.html'">
+            <div class="liquid-glow-layer"></div>
+            <div class="shortcut-meta-block" style="position: relative; z-index: 1;">
               <span class="shortcut-pill-accent">SUPPORT</span>
               <span class="shortcut-pill-accent">WELFARE</span>
             </div>
-            <div class="shortcut-main-content">
+            <div class="shortcut-main-content" style="position: relative; z-index: 1;">
               <h3 class="shortcut-main-title">Looking for Help?</h3>
               <p class="shortcut-main-description">Facing a challenge or concern? No matter how big or small, we're here to listen and help. Reach out anytime, and we'll work with you to find a solution in a safe and supportive environment.</p>
             </div>
-            <div class="shortcut-action-chevron">❯</div>
+            <div class="shortcut-action-chevron" style="position: relative; z-index: 1;">❯</div>
           </div>
 
           <div class="center-btn-wrapper">
-            <button class="center-action-btn" onclick="window.location.href='help.html'">
+            <button class="iso-button" onclick="window.location.href='help.html'">
               Help &rarr;
             </button>
           </div>
@@ -254,6 +259,8 @@
   </footer>
 
   <script src="js/app.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="js/canvas.js" defer></script>
 </body>
 </html>

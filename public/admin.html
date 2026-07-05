@@ -6,94 +6,144 @@
   <title>Admin Dashboard | Mechanical Engineering Association</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Admin Specific Styling (Avoiding clutter in style.css) */
+    /* ============================================================
+       ADMIN PREMIUM DARK THEME
+    ============================================================ */
+    html, body.admin-body {
+      background: #0a0a0a;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
     .admin-body {
-      background: #f1f5f9;
+      background: #0a0a0a;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
+    /* ---- Login Page ---- */
     .login-container {
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      background: #f8fafc;
+      background: radial-gradient(ellipse at 30% 20%, rgba(212,175,55,0.12) 0%, transparent 55%),
+                  radial-gradient(ellipse at 70% 80%, rgba(198,40,40,0.10) 0%, transparent 55%),
+                  #0a0a0a;
       padding: 20px;
     }
 
     .login-card {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 40px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 18px;
+      padding: 44px 40px;
       width: min(420px, 100%);
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.9), inset 0 0 30px rgba(212,175,55,0.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(212,175,55,0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(198,40,40,0.10) 0%, transparent 50%);
+      pointer-events: none;
+      animation: liquidFloat 12s ease-in-out infinite;
     }
 
     .login-title {
-      color: var(--primary);
-      font-size: 24px;
-      font-weight: 700;
+      background: linear-gradient(90deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-light) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: maskedShimmer 6s ease-in-out infinite;
+      font-size: 26px;
+      font-weight: 900;
       margin-bottom: 8px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .login-subtitle {
-      color: var(--text-muted);
+      color: rgba(255,255,255,0.5);
       font-size: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .form-group {
       margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
     }
 
     .form-label {
       display: block;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 600;
-      color: var(--text-dark);
-      margin-bottom: 6px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 7px;
+      letter-spacing: 0.4px;
     }
 
     .form-input {
       width: 100%;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
       font-size: 14.5px;
-      color: var(--text-dark);
+      color: #e2e8f0;
       outline: none;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-sizing: border-box;
     }
 
     .form-input:focus {
-      border-color: var(--primary);
+      border-color: rgba(212,175,55,0.5);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.08);
     }
 
+    .form-input option {
+      background: #1a1a1a;
+      color: #e2e8f0;
+    }
+
+    textarea.form-input {
+      resize: vertical;
+    }
+
+    /* ---- Sidebar ---- */
     .admin-layout {
-      display: none; /* Toggle via JS after auth */
+      display: none;
       flex: 1;
-      margin-top: 70px; /* Account for navbar */
+      margin-top: 70px;
     }
 
     .admin-sidebar {
       width: 260px;
-      background: #0f2b5c;
-      color: #ffffff;
-      padding: 30px 20px;
+      background: linear-gradient(180deg, #0f0f0f 0%, #111111 100%);
+      border-right: 1px solid rgba(212,175,55,0.12);
+      padding: 28px 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       position: fixed;
       left: 0;
       top: 70px;
       bottom: 0;
       z-index: 90;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      box-shadow: 4px 0 20px rgba(0,0,0,0.6);
     }
 
     .sidebar-btn {
@@ -101,34 +151,37 @@
       align-items: center;
       gap: 12px;
       padding: 12px 16px;
-      color: #e2e8f0;
+      color: rgba(255,255,255,0.55);
       font-weight: 600;
-      font-size: 14.5px;
-      border-radius: 6px;
+      font-size: 14px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
-      border: none;
+      border: 1px solid transparent;
       background: transparent;
       width: 100%;
       text-align: left;
     }
 
-    .sidebar-btn:hover, .sidebar-btn.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
+    .sidebar-btn:hover {
+      background: rgba(212,175,55,0.08);
+      color: var(--gold);
+      border-color: rgba(212,175,55,0.15);
     }
 
     .sidebar-btn.active {
-      border-left: 4px solid var(--glow-cyan);
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 0 6px 6px 0;
+      background: rgba(212,175,55,0.12);
+      color: var(--gold);
+      border-color: rgba(212,175,55,0.25);
+      box-shadow: 0 2px 12px rgba(212,175,55,0.1);
     }
 
+    /* ---- Main Area ---- */
     .admin-main {
       flex: 1;
       margin-left: 260px;
       padding: 40px;
-      background: #f8fafc;
+      background: #0a0a0a;
       min-height: calc(100vh - 70px);
     }
 
@@ -141,7 +194,7 @@
       display: block;
     }
 
-    /* Summary Dashboard Cards */
+    /* ---- Dashboard Cards ---- */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -150,36 +203,61 @@
     }
 
     .dashboard-card {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: var(--shadow-sm);
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 0 20px rgba(212,175,55,0.03);
+      backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(212,175,55,0.12) 0%, transparent 55%);
+      pointer-events: none;
+      animation: liquidFloat 10s ease-in-out infinite;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212,175,55,0.25);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08);
+    }
+
+    .card-info { position: relative; z-index: 1; }
+
     .card-info h4 {
-      font-size: 13.5px;
-      color: var(--text-muted);
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .card-info span {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--primary);
+      font-size: 34px;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    /* List Management Tables */
+    /* ---- Tables ---- */
     .table-container {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      box-shadow: var(--shadow-sm);
+      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
       overflow-x: auto;
       margin-top: 20px;
     }
@@ -192,41 +270,50 @@
 
     .admin-table th, .admin-table td {
       padding: 14px 20px;
-      font-size: 14px;
-      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.8);
     }
 
     .admin-table th {
-      background: var(--bg-light);
-      color: var(--primary);
+      background: rgba(255,255,255,0.04);
+      color: rgba(212,175,55,0.9);
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 12px;
-      letter-spacing: 0.5px;
+      font-size: 11.5px;
+      letter-spacing: 0.7px;
     }
 
     .admin-table tr:hover td {
-      background: var(--bg-light);
+      background: rgba(212,175,55,0.04);
     }
 
     .btn-edit {
-      color: #3b82f6;
+      color: rgba(96, 165, 250, 0.9);
       background: transparent;
       border: none;
       cursor: pointer;
       font-weight: 600;
       margin-right: 12px;
+      font-size: 13px;
+      transition: color 0.2s;
     }
 
+    .btn-edit:hover { color: #93c5fd; }
+
     .btn-delete {
-      color: #ef4444;
+      color: rgba(248, 113, 113, 0.9);
       background: transparent;
       border: none;
       cursor: pointer;
       font-weight: 600;
+      font-size: 13px;
+      transition: color 0.2s;
     }
 
-    /* Add Forms */
+    .btn-delete:hover { color: #fca5a5; }
+
+    /* ---- Header Row ---- */
     .admin-header-row {
       display: flex;
       justify-content: space-between;
@@ -234,17 +321,26 @@
       margin-bottom: 24px;
     }
 
-    /* Form Overlays */
+    .admin-header-row h2 {
+      background: linear-gradient(90deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-light) 100%);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: maskedShimmer 8s ease-in-out infinite;
+    }
+
+    /* ---- Form Overlays ---- */
     .form-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.75);
       z-index: 200;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(6px);
     }
 
     .form-overlay.active {
@@ -252,14 +348,24 @@
     }
 
     .form-card {
-      background: #ffffff;
-      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(212,175,55,0.18);
+      border-radius: 16px;
       width: min(650px, 100%);
       max-height: 85vh;
       overflow-y: auto;
-      padding: 32px;
+      padding: 36px;
       position: relative;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.9), inset 0 0 30px rgba(212,175,55,0.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .form-card h3 {
+      background: linear-gradient(90deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .link-row {
@@ -269,7 +375,7 @@
       align-items: center;
     }
 
-    /* Academics filter controls */
+    /* ---- Filter Bar ---- */
     .filter-bar {
       display: flex;
       gap: 12px;
@@ -278,21 +384,28 @@
     }
 
     .filter-input {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      padding: 9px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
       font-size: 13.5px;
       outline: none;
+      color: #e2e8f0;
+      transition: border-color 0.2s;
     }
+    .filter-input:focus { border-color: rgba(212,175,55,0.4); }
 
     .filter-select {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      padding: 9px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
       font-size: 13.5px;
-      background: #ffffff;
+      color: #e2e8f0;
       outline: none;
+      transition: border-color 0.2s;
     }
+    .filter-select:focus { border-color: rgba(212,175,55,0.4); }
 
     @media (max-width: 960px) {
       .admin-sidebar {
@@ -383,8 +496,8 @@
 
       <!-- Tab 1: Dashboard Overview -->
       <section class="admin-view active-view" id="view-dashboard">
-        <h2 style="color: var(--primary); margin-bottom: 8px;">Overview Dashboard</h2>
-        <p style="color: var(--text-muted); margin-bottom: 30px;">Quick metrics of site content configurations</p>
+        <h2 style="background: linear-gradient(90deg, var(--gold-light), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">Overview Dashboard</h2>
+        <p style="color: rgba(255,255,255,0.45); margin-bottom: 30px;">Quick metrics of site content configurations</p>
         
         <div class="dashboard-grid">
           <div class="dashboard-card">
@@ -415,8 +528,8 @@
       <section class="admin-view" id="view-notices">
         <div class="admin-header-row">
           <div>
-            <h2 style="color: var(--primary);">Notice Board Management</h2>
-            <p style="color: var(--text-muted); font-size: 13.5px;">View and edit KTU results templates and announcements</p>
+            <h2 style="background: linear-gradient(90deg, var(--gold-light), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Notice Board Management</h2>
+            <p style="color: rgba(255,255,255,0.45); font-size: 13.5px;">View and edit KTU results templates and announcements</p>
           </div>
           <button class="action-btn" onclick="openNoticeForm()">+ Add Notice</button>
         </div>
@@ -442,8 +555,8 @@
       <section class="admin-view" id="view-events">
         <div class="admin-header-row">
           <div>
-            <h2 style="color: var(--primary);">Event &amp; Workshop Management</h2>
-            <p style="color: var(--text-muted); font-size: 13.5px;">View and edit upcoming student assembly events and workshops</p>
+            <h2 style="background: linear-gradient(90deg, var(--gold-light), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Event &amp; Workshop Management</h2>
+            <p style="color: rgba(255,255,255,0.45); font-size: 13.5px;">View and edit upcoming student assembly events and workshops</p>
           </div>
           <button class="action-btn" onclick="openEventForm()">+ Add Event</button>
         </div>
@@ -467,8 +580,8 @@
 
       <!-- Tab 4: Academics Link Config -->
       <section class="admin-view" id="view-academics">
-        <h2 style="color: var(--primary); margin-bottom: 4px;">Academics Folder Manager</h2>
-        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 13.5px;">Update Google Drive folders redirection targets for all semesters and schemes.</p>
+        <h2 style="background: linear-gradient(90deg, var(--gold-light), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;">Academics Folder Manager</h2>
+        <p style="color: rgba(255,255,255,0.45); margin-bottom: 24px; font-size: 13.5px;">Update Google Drive folders redirection targets for all semesters and schemes.</p>
 
         <!-- Filters bar (no department — Mechanical only) -->
         <div class="filter-bar">
@@ -758,10 +871,6 @@
         <div class="form-group">
           <label class="form-label" for="event-date">Event Date</label>
           <input type="text" id="event-date" class="form-input flatpickr-date" placeholder="Select date..." required>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="event-time">Event Time</label>
-          <input type="text" id="event-time" class="form-input flatpickr-time" placeholder="Select time..." required>
         </div>
         <div class="form-group">
           <label class="form-label" for="event-venue">Venue</label>
@@ -1353,6 +1462,7 @@
           links.push({ name: 'Announcements', url: instagram });
         }
         template_data = { instagram };
+        payload.semester = semester;
 
       } else if (type === 'series_exam') {
         const semester = document.getElementById('notice-series-semester').value;
@@ -1371,6 +1481,7 @@
 
         links.push({ name: 'Series Exam Timetable PDF', url: pdfLink });
         template_data = { pdf_link: pdfLink, semester };
+        payload.semester = semester;
 
       } else if (type === 'hackathon') {
         const hackDate = document.getElementById('notice-hackathon-date').value.trim();
@@ -1411,6 +1522,7 @@
           links.push({ name: 'Announcements', url: toppersInsta });
         }
         template_data = { semester, toppers_list: toppersList, instagram: toppersInsta };
+        payload.semester = semester;
 
       } else if (type === 'call_for_team') {
         const teamDrop = document.getElementById('notice-call-team-dropdown').value;
@@ -1578,7 +1690,7 @@
         idInput.value = eventObj.id;
         document.getElementById('event-title').value = eventObj.title;
         document.getElementById('event-date').value = eventObj.date;
-        document.getElementById('event-time').value = eventObj.time;
+        // Time field removed – no event-time element
         document.getElementById('event-venue').value = eventObj.venue;
         document.getElementById('event-reg').value = eventObj.registration_link || '';
         document.getElementById('event-insta').value = eventObj.instagram_link || '';
@@ -1651,7 +1763,7 @@
       const id = document.getElementById('event-id').value;
       const title = document.getElementById('event-title').value.trim();
       const date = document.getElementById('event-date').value.trim();
-      const time = document.getElementById('event-time').value.trim();
+      // const time = document.getElementById('event-time').value.trim(); // time field removed
       const venue = document.getElementById('event-venue').value.trim();
       // poster_url: prefer uploaded file Base64, fall back to URL input
       const uploadedPoster = document.getElementById('event-poster-preview-el').src;
@@ -1662,13 +1774,14 @@
       const description = document.getElementById('event-desc').value.trim();
 
       // VALIDATION
-      if (!title || !date || !time || !venue || !poster_url || !description) {
+      if (!title || !date || !venue || !poster_url || !description) {
         errorDiv.textContent = 'All fields except registration and instagram links are required. Please upload an image or paste a URL.';
         errorDiv.style.display = 'block';
         return;
       }
-      if (!isValidUrl(poster_url)) {
-        errorDiv.textContent = 'Please enter a valid poster image URL (starting with http:// or https://).';
+      // Accept base64 data URLs (uploaded files) or ordinary HTTP URLs
+      if (!poster_url.startsWith('data:') && !isValidUrl(poster_url)) {
+        errorDiv.textContent = 'Please provide a valid poster image URL (starting with http:// or https://) or upload a file.';
         errorDiv.style.display = 'block';
         return;
       }
@@ -1683,7 +1796,7 @@
         return;
       }
 
-      const payload = { title, date, time, venue, poster_url, registration_link, instagram_link, description };
+      const payload = { title, date, venue, poster_url, registration_link, instagram_link, description };
       const method = id ? 'PUT' : 'POST';
       const endpoint = id ? `/api/admin/events/${id}` : '/api/admin/events';
 
@@ -1865,22 +1978,13 @@
       });
 
       // Time pickers (returns "HH:MM AM/PM")
-      document.querySelectorAll('.flatpickr-time').forEach(el => {
-        if (el._flatpickr) return;
-        flatpickr(el, {
-          enableTime: true,
-          noCalendar: true,
-          dateFormat: 'h:i K',
-          allowInput: true,
-          disableMobile: false,
-          time_24hr: false
-        });
-      });
-    }
+      // Time pickers removed – no .flatpickr-time elements
+      // Time picker block removed – no .flatpickr-time elements
 
     document.addEventListener('DOMContentLoaded', () => {
       initFlatpickr();
-    });
+    })
+  };
   </script>
 
 </body>

@@ -532,3 +532,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ================================================================
+// ADVANCED UI EFFECTS (Parallax)
+// ================================================================
+
+function initAdvancedUI() {
+  // Parallax Scrolling
+  const parallaxLayers = document.querySelectorAll('.parallax-layer');
+  if (parallaxLayers.length > 0) {
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      parallaxLayers.forEach(layer => {
+        let speed = layer.classList.contains('bg-orbs') ? 0.3 : 0.15;
+        if (layer.tagName.toLowerCase() === 'canvas') speed = 0.2;
+        layer.style.transform = `translateY(${scrollY * speed}px)`;
+      });
+    }, { passive: true });
+  }
+}
+
+// Ensure it runs after DOM load
+document.addEventListener('DOMContentLoaded', initAdvancedUI);
