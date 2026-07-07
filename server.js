@@ -110,7 +110,7 @@ app.get('/api/notices/:id', async (req, res) => {
 
 app.get('/api/events', async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM events ORDER BY date DESC, time DESC');
+    const result = await db.query('SELECT * FROM events ORDER BY date DESC');
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -272,15 +272,15 @@ app.delete('/api/admin/notices/:id', requireAdmin, async (req, res) => {
 });
 
 app.post('/api/admin/events', requireAdmin, async (req, res) => {
-  const { title, date, time, venue, description, poster_url, registration_link, instagram_link } = req.body;
-  if (!title || !date || !time || !venue || !description || !poster_url) {
-    return res.status(400).json({ error: 'Title, date, time, venue, description, and poster image URL are required' });
+  const { title, date, venue, description, poster_url, registration_link, instagram_link } = req.body;
+  if (!title || !date || !venue || !description || !poster_url) {
+    return res.status(400).json({ error: 'Title, date, venue, description, and poster image URL are required' });
   }
 
   try {
     const insertResult = await db.query(
-      'INSERT INTO events (title, date, time, venue, description, poster_url, registration_link, instagram_link) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-      [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || '']
+      'INSERT INTO events (title, date, venue, description, poster_url, registration_link, instagram_link) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [title, date, venue, description, poster_url, registration_link || '', instagram_link || '']
     );
     res.status(201).json({ id: insertResult.insertId, success: true });
   } catch (error) {
@@ -289,15 +289,15 @@ app.post('/api/admin/events', requireAdmin, async (req, res) => {
 });
 
 app.put('/api/admin/events/:id', requireAdmin, async (req, res) => {
-  const { title, date, time, venue, description, poster_url, registration_link, instagram_link } = req.body;
-  if (!title || !date || !time || !venue || !description || !poster_url) {
-    return res.status(400).json({ error: 'Title, date, time, venue, description, and poster image URL are required' });
+  const { title, date, venue, description, poster_url, registration_link, instagram_link } = req.body;
+  if (!title || !date || !venue || !description || !poster_url) {
+    return res.status(400).json({ error: 'Title, date, venue, description, and poster image URL are required' });
   }
 
   try {
     const updateResult = await db.query(
-      'UPDATE events SET title = $1, date = $2, time = $3, venue = $4, description = $5, poster_url = $6, registration_link = $7, instagram_link = $8 WHERE id = $9',
-      [title, date, time, venue, description, poster_url, registration_link || '', instagram_link || '', req.params.id]
+      'UPDATE events SET title = $1, date = $2, venue = $3, description = $4, poster_url = $5, registration_link = $6, instagram_link = $7 WHERE id = $8',
+      [title, date, venue, description, poster_url, registration_link || '', instagram_link || '', req.params.id]
     );
     if (updateResult.rowCount === 0) return res.status(404).json({ error: 'Event not found' });
     res.json({ success: true });

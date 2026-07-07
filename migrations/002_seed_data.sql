@@ -31,12 +31,12 @@ VALUES
     NULL
   );
 
-INSERT INTO events (title, date, time, venue, description, poster_url, registration_link, instagram_link)
+INSERT INTO events (title, date, venue, description, poster_url, registration_link, instagram_link)
 VALUES
   (
     'Robotics & Fabrication Hub',
     '2026-07-15',
-    '10:00 AM',
+
     'Robotics Lab, CET',
     'Hands-on workshop on structural assembly, Arduino path planning, and sensor calibration metrics.',
     'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80',

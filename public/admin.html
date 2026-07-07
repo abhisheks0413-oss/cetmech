@@ -1657,7 +1657,7 @@
           events.forEach(e => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td><strong>${e.date} | ${e.time}</strong></td>
+              <td><strong>${e.date}${e.time ? ' | ' + e.time : ''}</strong></td>
               <td>${e.title}</td>
               <td>${e.venue}</td>
               <td style="text-align: right;">
