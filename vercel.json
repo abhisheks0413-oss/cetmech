@@ -1,13 +1,17 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/academics", "destination": "/academics.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/events", "destination": "/events.html" },
-    { "source": "/help", "destination": "/help.html" },
-    { "source": "/notices", "destination": "/notices.html" }
+  "builds": [
+    { "src": "server.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/server.js" },
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/about", "dest": "/about.html" },
+    { "src": "/academics", "dest": "/academics.html" },
+    { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/events", "dest": "/events.html" },
+    { "src": "/help", "dest": "/help.html" },
+    { "src": "/notices", "dest": "/notices.html" }
   ]
 }
