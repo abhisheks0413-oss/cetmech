@@ -19,12 +19,20 @@ function getPool() {
       throw new Error('DATABASE_URL environment variable is required');
     }
 
-    const databaseUrl = new URL(process.env.DATABASE_URL);
+    let dbUrlStr = process.env.DATABASE_URL.trim();
+    if (dbUrlStr.startsWith('DATABASE_URL=')) {
+      dbUrlStr = dbUrlStr.substring('DATABASE_URL='.length).trim();
+    }
+    if ((dbUrlStr.startsWith('"') && dbUrlStr.endsWith('"')) || (dbUrlStr.startsWith("'") && dbUrlStr.endsWith("'"))) {
+      dbUrlStr = dbUrlStr.substring(1, dbUrlStr.length - 1).trim();
+    }
+
+    const databaseUrl = new URL(dbUrlStr);
     const sslMode = databaseUrl.searchParams.get('ssl-mode') || databaseUrl.searchParams.get('sslmode');
     const sslEnabled = process.env.DATABASE_SSL === 'true' || /^(required|require|verify_ca|verify_identity)$/i.test(sslMode || '');
 
     pool = mysql.createPool({
-      uri: process.env.DATABASE_URL,
+      uri: dbUrlStr,
       connectionLimit: 5,
       timezone: 'Z',
       ssl: { rejectUnauthorized: false }
