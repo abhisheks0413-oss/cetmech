@@ -80,17 +80,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-// Debug endpoint – checks DB connectivity (remove or protect in production)
-app.get('/api/debug/db', async (req, res) => {
-  try {
-    const result = await db.query('SELECT 1 AS ok');
-    res.json({ status: 'connected', result: result.rows[0] });
-  } catch (err) {
-    console.error('DB connection test error:', err);
-    res.status(500).json({ status: 'error', message: err.message });
-  }
-});
-
 // Serve all static frontend files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
