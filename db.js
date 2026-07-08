@@ -27,7 +27,7 @@ function getPool() {
       uri: process.env.DATABASE_URL,
       connectionLimit: 5,
       timezone: 'Z',
-      ...(sslEnabled ? { ssl: { rejectUnauthorized: false } } : {})
+      ssl: { rejectUnauthorized: false }
     });
   }
 
