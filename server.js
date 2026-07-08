@@ -345,6 +345,13 @@ app.put('/api/admin/academics/:id', requireAdmin, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// Global error handling – always return JSON
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(status).json({ error: message });
+});
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) return res.status(404).json({ error: 'Not found' });
