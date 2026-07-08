@@ -36,10 +36,7 @@ function getPool() {
 
 function getSqliteDb() {
   if (!sqliteDb) {
-    if (!fs.existsSync(sqlitePath)) {
-      throw new Error('DATABASE_URL environment variable is required');
-    }
-
+    // Ensure the SQLite file exists; if not, it will be created automatically by DatabaseSync
     const { DatabaseSync } = require('node:sqlite');
     sqliteDb = new DatabaseSync(sqlitePath);
   }
@@ -108,9 +105,31 @@ async function query(text, params = []) {
 async function ensureSchema() {
   if (initialized) return;
 
+  // SQLite fallback – run migrations directly when no MySQL config
   if (!hasMysqlConfig()) {
+    // Ensure DB file exists
     getSqliteDb();
-    initialized = true;
+    try {
+      const migrationFiles = fs.readdirSync(migrationDir)
+        .filter(f => f.endsWith('.sql'))
+        .sort();
+      for (const file of migrationFiles) {
+        const sql = fs.readFileSync(path.join(migrationDir, file), 'utf8');
+        const statements = sql.split(/;\s*\n/).map(s => s.trim()).filter(Boolean);
+        for (const stmt of statements) {
+          try {
+            sqliteDb.exec(stmt);
+          } catch (e) {
+            if (process.env.NODE_ENV !== 'production') {
+              console.warn('SQLite migration ignored error:', e.message);
+            }
+          }
+        }
+      }
+      initialized = true;
+    } catch (e) {
+      console.warn('SQLite migration failed:', e.message);
+    }
     return;
   }
 
