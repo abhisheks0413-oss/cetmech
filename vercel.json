@@ -2,7 +2,6 @@
   "version": 2,
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.js" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/about", "destination": "/about.html" },
     { "source": "/academics", "destination": "/academics.html" },

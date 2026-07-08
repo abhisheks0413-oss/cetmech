@@ -5,8 +5,14 @@ const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const db = require('./db');
-
+// Runtime check for required environment variables
+if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || !process.env.JWT_SECRET) {
+  console.warn('⚠️ Missing ADMIN_USERNAME, ADMIN_PASSWORD, or JWT_SECRET environment variables. Admin login may fail.');
+}
 const app = express();
+app.get('/api/test', (req, res) => {
+    res.json({ success: true });
+});
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
