@@ -2004,3 +2004,30 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+
+/* ---------- form overlay (modal) ---------- */
+.form-overlay {
+  display: none;                     /* hidden by default */
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);        /* dimmed backdrop */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* when JS adds .active → show the overlay */
+.form-overlay.active {
+  display: flex;
+}
+
+/* optional: style the modal card */
+.form-overlay .form-card {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
