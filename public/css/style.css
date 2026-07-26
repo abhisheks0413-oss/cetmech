@@ -1114,16 +1114,27 @@ section {
 }
 
 .heads-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 
+.head-card {
+  flex: 0 1 calc(50% - 10px);
+}
+
+.head-card:nth-child(n+3) {
+  flex: 0 1 calc(33.333% - 14px);
+}
+
 @media (max-width: 960px) {
-  .heads-grid { grid-template-columns: repeat(2, 1fr); }
+  .head-card { flex: 0 1 calc(50% - 10px); }
+  .head-card:nth-child(n+3) { flex: 0 1 calc(50% - 10px); }
 }
 @media (max-width: 480px) {
-  .heads-grid { grid-template-columns: 1fr; }
+  .head-card { flex: 0 1 100%; }
+  .head-card:nth-child(n+3) { flex: 0 1 100%; }
 }
 
 .head-card {
