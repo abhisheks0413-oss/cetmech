@@ -580,33 +580,21 @@
 
       <!-- Tab 4: Academics Link Config -->
       <section class="admin-view" id="view-academics">
-        <h2 style="background: linear-gradient(90deg, var(--gold-light), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;">Academics Folder Manager</h2>
-        <p style="color: rgba(255,255,255,0.45); margin-bottom: 24px; font-size: 13.5px;">Update Google Drive folders redirection targets for all semesters and schemes.</p>
+        <h2 style="background: linear-gradient(90deg, var(--gold-light), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px;">Semester Resources Manager</h2>
+        <p style="color: rgba(255,255,255,0.45); margin-bottom: 24px; font-size: 13.5px;">Manage Google Drive links for each semester (1-9).</p>
 
-        <!-- Filters bar (no department — Mechanical only) -->
+        <!-- Filter bar -->
         <div class="filter-bar">
-          <select id="acad-filter-type" class="filter-select" onchange="filterAcademics()">
-            <option value="">All Types</option>
-            <option value="syllabus">Syllabus</option>
-            <option value="resources">Resources</option>
-          </select>
-
-          <select id="acad-filter-scheme" class="filter-select" onchange="filterAcademics()">
-            <option value="">All Schemes</option>
-            <option value="2024">2024 Scheme</option>
-            <option value="2019">2019 Scheme</option>
-          </select>
-
           <select id="acad-filter-sem" class="filter-select" onchange="filterAcademics()">
             <option value="">All Semesters</option>
-            <option value="Semester 1">Semester 1</option>
-            <option value="Semester 2">Semester 2</option>
-            <option value="Semester 3">Semester 3</option>
-            <option value="Semester 4">Semester 4</option>
-            <option value="Semester 5">Semester 5</option>
-            <option value="Semester 6">Semester 6</option>
-            <option value="Semester 7">Semester 7</option>
-            <option value="Semester 8">Semester 8</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            <option value="4">Semester 4</option>
+            <option value="5">Semester 5</option>
+            <option value="6">Semester 6</option>
+            <option value="7">Semester 7</option>
+            <option value="8">Semester 8</option>
           </select>
         </div>
 
@@ -614,8 +602,6 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Scheme</th>
                 <th>Semester</th>
                 <th>Drive Link</th>
                 <th style="text-align: right;">Action</th>
@@ -910,16 +896,8 @@
   <div id="academics-form-overlay" class="form-overlay">
     <div class="form-card" style="width: min(500px, 100%);">
       <span class="modal-close" onclick="closeAcademicsForm()">&times;</span>
-      <h3 style="color: var(--primary); margin-bottom: 20px;">Edit Drive Link Redirect</h3>
+      <h3 style="color: var(--primary); margin-bottom: 20px;">Edit Semester Resources Link</h3>
 
-      <div class="form-group">
-        <label class="form-label">Type</label>
-        <input type="text" id="acad-edit-type" class="form-input" readonly style="background: #f1f5f9; cursor: not-allowed;">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Scheme</label>
-        <input type="text" id="acad-edit-scheme" class="form-input" readonly style="background: #f1f5f9; cursor: not-allowed;">
-      </div>
       <div class="form-group">
         <label class="form-label">Semester</label>
         <input type="text" id="acad-edit-sem" class="form-input" readonly style="background: #f1f5f9; cursor: not-allowed;">
@@ -1851,22 +1829,18 @@
     }
 
     function filterAcademics() {
-      const type = document.getElementById('acad-filter-type').value;
-      const scheme = document.getElementById('acad-filter-scheme').value;
       const semester = document.getElementById('acad-filter-sem').value;
 
       const tbody = document.getElementById('academics-table-body');
       tbody.innerHTML = '';
 
       const filtered = loadedAcademics.filter(c => {
-        const matchesType = type ? c.type === type : true;
-        const matchesScheme = scheme ? c.scheme === scheme : true;
-        const matchesSem = semester ? c.semester === semester : true;
-        return matchesType && matchesScheme && matchesSem;
+        const matchesSem = semester ? String(c.semester) === semester : true;
+        return matchesSem;
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No matching configuration records found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No matching records found.</td></tr>';
         return;
       }
 
@@ -1877,9 +1851,7 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><span class="label" style="font-size: 11px;">${c.type.toUpperCase()}</span></td>
-          <td><strong>${c.scheme} Scheme</strong></td>
-          <td>${c.semester}</td>
+          <td>Semester ${c.semester}</td>
           <td>${statusBadge}</td>
           <td style="text-align: right;">
             <button class="btn-edit" onclick="openAcademicsForm(${JSON.stringify(c).replace(/"/g, '&quot;')})">Edit Link</button>
@@ -1893,9 +1865,7 @@
       document.getElementById('academics-form-overlay').classList.add('active');
       
       document.getElementById('acad-edit-id').value = c.id;
-      document.getElementById('acad-edit-type').value = c.type.toUpperCase();
-      document.getElementById('acad-edit-scheme').value = `${c.scheme} Scheme`;
-      document.getElementById('acad-edit-sem').value = c.semester;
+      document.getElementById('acad-edit-sem').value = `Semester ${c.semester}`;
       document.getElementById('acad-edit-link').value = c.drive_link || '';
     }
 

@@ -40,66 +40,14 @@
     <div id="academics-view" class="tab-view active-view" style="padding-top: 70px;">
       <section>
         <div class="section-head">
-          <h2>Academic Portals</h2>
-          <p>Direct institutional access to core academic tracking criteria, syllabus frameworks, and student digital reference vaults.</p>
+          <h2>Academic Resources</h2>
+          <p>Access study materials, notes, and resources organized by semester.</p>
         </div>
-        <div class="academics-wizard-card">
-          <!-- Progress Bar / Step Indicators (3 steps only) -->
-          <div class="wizard-steps-indicator">
-            <div class="step-indicator active" id="acad-step-ind-1">1. Type</div>
-            <div class="step-indicator" id="acad-step-ind-2">2. Scheme</div>
-            <div class="step-indicator" id="acad-step-ind-3">3. Semester</div>
-          </div>
-
-          <div class="wizard-content">
-            <!-- Step 1: Type Selection -->
-            <div class="wizard-step active-step" id="acad-step-1">
-              <h3 class="wizard-step-title">Select Resource Type</h3>
-              <p class="wizard-step-desc">Choose whether you want to access the syllabus or study resources.</p>
-              <div class="wizard-buttons-grid">
-                <button class="wizard-btn-large" onclick="selectAcadType('syllabus')">
-                  <span class="btn-icon">📋</span>
-                  <strong>Syllabus</strong>
-                  <span>Curriculum &amp; Scheme framework</span>
-                </button>
-                <button class="wizard-btn-large" onclick="selectAcadType('resources')">
-                  <span class="btn-icon">📁</span>
-                  <strong>Resources</strong>
-                  <span>Lecture slides, notes &amp; papers</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Step 2: Scheme Selection -->
-            <div class="wizard-step" id="acad-step-2">
-              <h3 class="wizard-step-title">Select Scheme</h3>
-              <p class="wizard-step-desc">Choose the curriculum regulation scheme.</p>
-              <div class="wizard-buttons-grid">
-                <button class="wizard-btn-large" onclick="selectAcadScheme('2024')">
-                  <strong>2024 Scheme</strong>
-                  <span>Latest KTU scheme regulations</span>
-                </button>
-                <button class="wizard-btn-large" onclick="selectAcadScheme('2019')">
-                  <strong>2019 Scheme</strong>
-                  <span>Previous KTU scheme regulations</span>
-                </button>
-              </div>
-              <div class="wizard-footer">
-                <button class="action-link-btn" onclick="prevAcadStep()">&larr; Back</button>
-              </div>
-            </div>
-
-            <!-- Step 3: Semester Selection — selecting redirects directly to Drive -->
-            <div class="wizard-step" id="acad-step-3">
-              <h3 class="wizard-step-title">Select Semester</h3>
-              <p class="wizard-step-desc">Choose your semester. You will be redirected to the Google Drive folder.</p>
-              <div class="wizard-buttons-compact-grid" id="semesters-list">
-                <!-- Dynamically rendered semesters 1-8 -->
-              </div>
-              <div class="wizard-footer">
-                <button class="action-link-btn" onclick="prevAcadStep()">&larr; Back</button>
-              </div>
-            </div>
+        <div class="academics-simple-card">
+          <h3 class="wizard-step-title">Select Your Semester</h3>
+          <p class="wizard-step-desc">Choose your semester to access course materials and resources.</p>
+          <div class="wizard-buttons-grid" id="semesters-list">
+            <!-- Dynamically rendered semesters 1-9 -->
           </div>
         </div>
       </section>

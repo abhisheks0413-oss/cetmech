@@ -189,22 +189,12 @@ function closeNoticeLightbox() {
 // ================================================================
 // ACADEMICS WIZARD — 3-step flow (Type → Scheme → Semester)
 // ================================================================
-const acadState = { currentStep: 1, type: '', scheme: '' };
-
-function selectAcadType(type) {
-  acadState.type = type;
-  _goToAcadStep(2);
-}
-
-function selectAcadScheme(scheme) {
-  acadState.scheme = scheme;
-  _goToAcadStep(3);
-  populateSemesters();
-}
-
-function selectAcadSemester(sem) {
-  // Step 3 selection → immediately fetch the Drive link and open it
-  const url = `/api/academics/link?type=${encodeURIComponent(acadState.type)}&scheme=${encodeURIComponent(acadState.scheme)}&semester=${encodeURIComponent(sem)}`;
+// ================================================================
+// ACADEMICS SIMPLE — Semester Selection
+// ================================================================
+function selectAcadSemester(semester) {
+  // Fetch the Drive link for this semester
+  const url = `/api/academics/link?semester=${encodeURIComponent(semester)}`;
 
   fetch(url)
     .then(res => {
@@ -215,32 +205,12 @@ function selectAcadSemester(sem) {
       if (data.drive_link) {
         window.open(data.drive_link, '_blank');
       } else {
-        alert('Google Drive folder link is not yet configured for this selection. Please check back later.');
+        alert('Resources for this semester are not yet configured. Please check back later.');
       }
     })
     .catch(err => {
-      alert('This folder link has not been configured yet. Please check back later.\n\n(' + err.message + ')');
+      alert('Resources not available.\n\n(' + err.message + ')');
     });
-}
-
-function prevAcadStep() {
-  if (acadState.currentStep > 1) _goToAcadStep(acadState.currentStep - 1);
-}
-
-function _goToAcadStep(targetStep) {
-  // Deactivate current
-  const currentStepEl = document.getElementById(`acad-step-${acadState.currentStep}`);
-  const currentIndEl = document.getElementById(`acad-step-ind-${acadState.currentStep}`);
-  if (currentStepEl) currentStepEl.classList.remove('active-step');
-  if (currentIndEl) currentIndEl.classList.remove('active');
-
-  acadState.currentStep = targetStep;
-
-  // Activate new
-  const newStepEl = document.getElementById(`acad-step-${acadState.currentStep}`);
-  const newIndEl = document.getElementById(`acad-step-ind-${acadState.currentStep}`);
-  if (newStepEl) newStepEl.classList.add('active-step');
-  if (newIndEl) newIndEl.classList.add('active');
 }
 
 function populateSemesters() {
@@ -249,9 +219,13 @@ function populateSemesters() {
   container.innerHTML = '';
   for (let i = 1; i <= 8; i++) {
     const btn = document.createElement('button');
-    btn.className = 'wizard-btn-medium';
-    btn.textContent = `Semester ${i}`;
-    btn.onclick = () => selectAcadSemester(`Semester ${i}`);
+    btn.className = 'wizard-btn-large';
+    btn.innerHTML = `
+      <span class="btn-icon">📚</span>
+      <strong>Semester ${i}</strong>
+      <span>${i === 1 || i === 2 ? 'First Year' : i === 3 || i === 4 ? 'Second Year' : i === 5 || i === 6 ? 'Third Year' : 'Fourth Year'}</span>
+    `;
+    btn.onclick = () => selectAcadSemester(i);
     container.appendChild(btn);
   }
 }
@@ -536,6 +510,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error fetching events:', err);
         if (eventsContainer) eventsContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">Failed to load events.</p>';
       });
+  }
+
+  // Populate academics semesters on academics page load
+  if (document.getElementById('semesters-list')) {
+    populateSemesters();
   }
 
   // Close modals on backdrop click

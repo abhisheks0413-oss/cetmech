@@ -123,16 +123,16 @@ app.get('/api/events', async (req, res) => {
 });
 
 app.get('/api/academics/link', async (req, res) => {
-  const { type, scheme, semester } = req.query;
-  if (!type || !scheme || !semester) {
-    return res.status(400).json({ error: 'Missing parameters: type, scheme, and semester are required' });
+  const { semester } = req.query;
+  if (!semester) {
+    return res.status(400).json({ error: 'Missing parameter: semester is required' });
   }
 
   try {
-    const result = await db.query('SELECT drive_link FROM academics WHERE type = $1 AND scheme = $2 AND semester = $3', [String(type).toLowerCase(), String(scheme), String(semester)]);
+    const result = await db.query('SELECT drive_link FROM academics WHERE semester = $1', [parseInt(semester)]);
     const row = result.rows[0];
-    if (!row) return res.status(404).json({ error: 'Google Drive configuration not found' });
-    if (!row.drive_link) return res.status(404).json({ error: 'Google Drive link not configured yet for this selection' });
+    if (!row) return res.status(404).json({ error: 'Resources not found for this semester' });
+    if (!row.drive_link) return res.status(404).json({ error: 'Google Drive link not configured yet for this semester' });
     res.json({ drive_link: row.drive_link });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -323,7 +323,7 @@ app.delete('/api/admin/events/:id', requireAdmin, async (req, res) => {
 
 app.get('/api/admin/academics', requireAdmin, async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM academics ORDER BY type, scheme, semester');
+    const result = await db.query('SELECT * FROM academics ORDER BY semester');
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
