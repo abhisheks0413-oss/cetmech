@@ -16,11 +16,25 @@
     <nav id="tab-nav">
       <a id="nav-home-view" href="index.html" class="active">Home</a>
       <a id="nav-about-view" href="about.html">About</a>
+      <!--
       <a id="nav-academics-view" href="academics.html">Academics</a>
+      -->
       <a id="nav-students-view" href="events.html">Events</a>
       <a id="nav-notices-view" href="notices.html">Notices</a>
       <a id="nav-help-view" href="help.html">Help</a>
     </nav>
+    <button id="nav-menu-toggle" class="nav-menu-toggle" aria-label="Toggle navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div id="mobile-nav-menu" class="mobile-nav-menu">
+      <a id="mobile-nav-home" href="index.html" class="mobile-nav-link active">Home</a>
+      <a id="mobile-nav-about" href="about.html" class="mobile-nav-link">About</a>
+      <a id="mobile-nav-events" href="events.html" class="mobile-nav-link">Events</a>
+      <a id="mobile-nav-notices" href="notices.html" class="mobile-nav-link">Notices</a>
+      <a id="mobile-nav-help" href="help.html" class="mobile-nav-link">Help</a>
+    </div>
   </header>
 
   <main>
@@ -77,8 +91,7 @@
           </div>
         </div>
       </div>
-
-      <!-- SECTION: ACADEMICS SHORTCUT COMPONENT -->
+      <!--
       <div class="home-shortcut-container" style="border-top: 1px solid var(--border); padding-top: 40px;">
         <div style="width: min(1200px, calc(100% - 80px)); margin: 0 auto;">
           <h2 class="shortcut-section-title">Academics</h2>
@@ -104,14 +117,12 @@
           </div>
         </div>
       </div>
-
+      -->
       <!-- SECTION: EVENTS SHORTCUT & IMAGES COMPONENT -->
       <div class="home-shortcut-container" style="border-top: 1px solid var(--border); padding-top: 40px;">
         <div style="width: min(1200px, calc(100% - 80px)); margin: 0 auto;">
           <h2 class="shortcut-section-title">Events &amp; Achievements</h2>
           <p class="shortcut-section-subtitle">Highlights from our workshops, technical symposiums, and community projects</p>
-          
-          <!-- Interactive Card -->
           <div class="dark-shortcut-card liquid-glass hyper" onclick="window.location.href='events.html'">
             <div class="liquid-glow-layer"></div>
             <div class="shortcut-meta-block" style="position: relative; z-index: 1;">

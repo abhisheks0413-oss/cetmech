@@ -14,6 +14,46 @@ function navigateToTab(viewId) {
   if (targetPage) window.location.href = targetPage;
 }
 
+// Mobile Navigation Menu Toggle
+function initMobileNav() {
+  const toggle = document.getElementById('nav-menu-toggle');
+  const menu = document.getElementById('mobile-nav-menu');
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+  
+  if (!toggle || !menu) return;
+  
+  // Toggle menu on button click
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggle.classList.toggle('active');
+    menu.classList.toggle('active');
+  });
+  
+  // Close menu when a link is clicked
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      toggle.classList.remove('active');
+      menu.classList.remove('active');
+    });
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+      toggle.classList.remove('active');
+      menu.classList.remove('active');
+    }
+  });
+  
+  // Close menu on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      toggle.classList.remove('active');
+      menu.classList.remove('active');
+    }
+  });
+}
+
 // ================================================================
 // CAROUSEL (homepage notices)
 // ================================================================
@@ -459,6 +499,9 @@ document.addEventListener('keydown', (e) => {
 // GLOBAL INITIALISATION
 // ================================================================
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize mobile navigation menu
+  initMobileNav();
+  
   const listContainer = document.getElementById('notices-list-container');
   const carouselContainer = document.getElementById('notice-carousel-container');
   const eventsContainer = document.getElementById('events-list-container');
